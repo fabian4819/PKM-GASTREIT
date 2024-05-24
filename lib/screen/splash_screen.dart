@@ -1,5 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import 'package:pkm_gastreit/screen/login_screen.dart';
+import 'package:pkm_gastreit/screen/landing_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,10 +18,10 @@ class _SplashScreenState extends State<SplashScreen> {
     // Di sini Anda dapat menambahkan logika untuk menunggu beberapa detik sebelum
     // navigasi ke layar berikutnya, atau menyiapkan data awal jika diperlukan.
     // Contoh:
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
     Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (context) =>const LoginScreen()), // Replace 'NextScreen' with the correct method name or define a method named 'NextScreen'
+    MaterialPageRoute(builder: (context) =>const LandingScreen()), // Replace 'NextScreen' with the correct method name or define a method named 'NextScreen'
     );
     });
   }
@@ -47,22 +50,20 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 10), // Spasi antara gambar dan teks
               // Teks
-              const Text(
+              Text(
                 'GASTREIT',
-                style: TextStyle(
-                  fontFamily: 'Ubuntu',
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.ubuntu(
                   fontSize: 30,
-                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 )
               ),
-              const SizedBox(height: 15),
-              const Text(
+            const SizedBox(height: 15),
+              Text(
                 'EARLY INSIGHT GERD OUT OF SIGHT', // Teks yang ingin ditampilkan
-                style: TextStyle(
-                  fontFamily: 'Ubuntu',
-                  fontSize: 20, // Ukuran font teks
-                  color: Color(0xFF041E60), // Warna teks
+                style: GoogleFonts.ubuntu(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF041E60)
                 ),
               ),
             ],
