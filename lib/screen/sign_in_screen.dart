@@ -123,30 +123,36 @@ class SignInScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 40),
+                Text(
+                  'GASTREIT',
+                  style: GoogleFonts.ubuntu(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
-
-            SizedBox(height: 16),
-            //GOOGLE
-            //FILL THIS
-            SizedBox(height: 32),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Belum punya akun? ',
-                style: GoogleFonts.libreFranklin(fontSize: 15),),
+                Text(
+                  'Belum punya akun? ',
+                  style: GoogleFonts.libreFranklin(fontSize: 15),
+                ),
                 Flexible(
                   child: TextButton(
                     onPressed: () {
                       Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignUpScreen()),
-                    );
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpScreen()),
+                      );
                     },
                     child: Text(
                       'SIGN UP',
                       style: GoogleFonts.libreFranklin(
-                          fontSize: 15, fontWeight: FontWeight.bold, color: Color.fromRGBO(8, 4, 180, 1)),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(8, 4, 180, 1)),
                     ),
                   ),
                 ),
