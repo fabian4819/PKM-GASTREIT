@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pkm_gastreit/screen/sign_up_screen.dart';
+import 'package:pkm_gastreit/screen/home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -109,7 +110,13 @@ class SignInScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Navigate to HomePage on successful sign-in
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF0A2874),
                     minimumSize: Size(500, 55),
