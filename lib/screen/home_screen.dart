@@ -20,84 +20,78 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Hi, Lula'),
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
+      body: Column(
+        children: [
+          ClipPath(
+            clipper: InwardAppBarClipper(),
+            child: Container(
+              height: 220,
+              color: Colors.blue,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0.0), // Adjust top padding to move the text up
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Hi, Lula\nWelcome back',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                      Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.add),
+                        label: Text('Rekam Citra Medis'),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        CategoryButton(icon: Icons.image, label: 'Input Citra'),
+                        CategoryButton(icon: Icons.insert_chart, label: 'Hasil Citra'),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Text('Informasi Menarik', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Image.asset('assets/information_1.png', fit: BoxFit.cover),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Image.asset('assets/information_2.png', fit: BoxFit.cover),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Welcome back', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.add),
-                label: Text('Rekam Citra Medis'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Cari Layanan Perawatan Terdekat',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Text('Category', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  CategoryButton(icon: Icons.local_hospital, label: 'Konsultasi Dokter'),
-                  CategoryButton(icon: Icons.local_pharmacy, label: 'Toko Obat'),
-                  CategoryButton(icon: Icons.calendar_today, label: 'Janji Medis'),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text('Layanan Lainnya', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  CategoryButton(icon: Icons.history, label: 'Riwayat'),
-                  CategoryButton(icon: Icons.alarm, label: 'Alarm Obat'),
-                  CategoryButton(icon: Icons.health_and_safety, label: 'Check-up Penyakit'),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text('Informasi Menarik', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: Image.asset('assets/information_1.png', fit: BoxFit.cover),
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Image.asset('assets/information_2.png', fit: BoxFit.cover),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
@@ -134,5 +128,29 @@ class CategoryButton extends StatelessWidget {
         Text(label, style: TextStyle(fontSize: 14)),
       ],
     );
+  }
+}
+
+class InwardAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, size.height - 50);
+    var firstControlPoint = Offset(size.width / 4, size.height - 100);
+    var firstEndPoint = Offset(size.width / 2, size.height - 50);
+    var secondControlPoint = Offset(size.width * 3 / 4, size.height);
+    var secondEndPoint = Offset(size.width, size.height - 50);
+    path.quadraticBezierTo(
+        firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
+    path.quadraticBezierTo(
+        secondControlPoint.dx, secondControlPoint.dy, secondEndPoint.dx, secondEndPoint.dy);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }
