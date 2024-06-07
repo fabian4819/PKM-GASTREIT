@@ -1,7 +1,7 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_const_constructors_in_immutables, unused_import
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -28,7 +28,8 @@ class HomeScreen extends StatelessWidget {
               height: 220,
               color: Colors.blue,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0.0), // Adjust top padding to move the text up
+                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0,
+                    0.0), // Adjust top padding to move the text up
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Text(
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      Center(
+                    Center(
                       child: ElevatedButton.icon(
                         onPressed: () {},
                         icon: Icon(Icons.add),
@@ -59,7 +60,8 @@ class HomeScreen extends StatelessWidget {
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(),
+                            borderRadius: BorderRadius.circular(
+                                8.0), // Provide a radius value here
                           ),
                         ),
                       ),
@@ -69,20 +71,25 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         CategoryButton(icon: Icons.image, label: 'Input Citra'),
-                        CategoryButton(icon: Icons.insert_chart, label: 'Hasil Citra'),
+                        CategoryButton(
+                            icon: Icons.insert_chart, label: 'Hasil Citra'),
                       ],
                     ),
                     SizedBox(height: 16),
-                    Text('Informasi Menarik', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Informasi Menarik',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
-                          child: Image.asset('assets/information_1.png', fit: BoxFit.cover),
+                          child: Image.asset('assets/information_1.png',
+                              fit: BoxFit.cover),
                         ),
                         SizedBox(width: 8),
                         Expanded(
-                          child: Image.asset('assets/information_2.png', fit: BoxFit.cover),
+                          child: Image.asset('assets/information_2.png',
+                              fit: BoxFit.cover),
                         ),
                       ],
                     ),
@@ -140,10 +147,10 @@ class InwardAppBarClipper extends CustomClipper<Path> {
     var firstEndPoint = Offset(size.width / 2, size.height - 50);
     var secondControlPoint = Offset(size.width * 3 / 4, size.height);
     var secondEndPoint = Offset(size.width, size.height - 50);
-    path.quadraticBezierTo(
-        firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
-    path.quadraticBezierTo(
-        secondControlPoint.dx, secondControlPoint.dy, secondEndPoint.dx, secondEndPoint.dy);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstEndPoint.dx, firstEndPoint.dy);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
+        secondEndPoint.dx, secondEndPoint.dy);
     path.lineTo(size.width, 0);
     path.close();
     return path;

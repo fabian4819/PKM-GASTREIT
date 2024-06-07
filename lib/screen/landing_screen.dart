@@ -4,8 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
-import 'sign_in_screen.dart'; // Import halaman Sign In
-import 'sign_up_screen.dart'; // Import halaman Sign Up
+import 'package:pkm_gastreit/screen/sign_in_screen.dart'; // Import halaman Sign In
+import 'package:pkm_gastreit/screen/sign_up_screen.dart'; // Import halaman Sign Up
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -84,27 +84,37 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 100),
-                      Image.asset(
-                        "images/landing_2.png",
-                        width: 300,
-                        height: 300,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Gejala Umum Masalah Lambung',
-                        style: GoogleFonts.murecho(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 100),
+                        Image.asset(
+                          "images/landing_2.png",
+                          width: 300,
+                          height: 300,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          'Gejala Umum Masalah',
+                          style: GoogleFonts.murecho(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Lambung',
+                          style: GoogleFonts.murecho(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -119,12 +129,19 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Tips Menjaga Kesehatan Lambung',
+                        'Tips Menjaga Kesehatan',
                         style: GoogleFonts.murecho(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      Text(
+                          'Lambung',
+                          style: GoogleFonts.murecho(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                     ],
                   ),
                 ),
