@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 
-
 void main() {
   runApp(MyApp());
 }
@@ -28,8 +27,7 @@ class HomeScreen extends StatelessWidget {
               height: 220,
               color: Colors.blue,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0,
-                    0.0), // Adjust top padding to move the text up
+                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0.0),
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Text(
@@ -60,36 +58,81 @@ class HomeScreen extends StatelessWidget {
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Provide a radius value here
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        CategoryButton(icon: Icons.image, label: 'Input Citra'),
                         CategoryButton(
-                            icon: Icons.insert_chart, label: 'Hasil Citra'),
+                          image: Image.asset(
+                            "images/Icon-InputCitra.png",
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                          label: 'Input Citra',
+                        ),
+                        CategoryButton(
+                          image: Image.asset(
+                            "images/Icon-HasilCitra.png",
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                          label: 'Hasil Citra',
+                        ),
                       ],
                     ),
-                    SizedBox(height: 16),
-                    Text('Informasi Menarik',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16),
-                    Row(
+                    SizedBox(height: 40),
+                    Stack(
                       children: [
-                        Expanded(
-                          child: Image.asset('assets/information_1.png',
-                              fit: BoxFit.cover),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          padding: EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Informasi Menarik',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Image.asset(
+                                      'images/informasimenarik1.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Image.asset(
+                                      'images/informasimenarik2.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Image.asset('assets/information_2.png',
-                              fit: BoxFit.cover),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Icon(
+                            Icons.arrow_forward,
+                            color: Colors.blue,
+                            size: 30,
+                          ),
                         ),
                       ],
                     ),
@@ -102,10 +145,18 @@ class HomeScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.file_copy), label: 'Files'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: ImageIcon(AssetImage('images/home_black.png')),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: ImageIcon(AssetImage('images/input_light.png')),
+            label: 'Files',
+          ),
+          BottomNavigationBarItem(
+            icon: ImageIcon(AssetImage('images/hasil_light.png')),
+            label: 'Chat',
+          ),
         ],
       ),
     );
@@ -113,26 +164,33 @@ class HomeScreen extends StatelessWidget {
 }
 
 class CategoryButton extends StatelessWidget {
-  final IconData icon;
+  final Image image;
   final String label;
 
-  CategoryButton({required this.icon, required this.label});
+  CategoryButton({required this.image, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ElevatedButton(
+        OutlinedButton(
           onPressed: () {},
-          style: ElevatedButton.styleFrom(
+          style: OutlinedButton.styleFrom(
             backgroundColor: Colors.blue[100],
-            shape: CircleBorder(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
             padding: EdgeInsets.all(20),
+            side: BorderSide(color: Colors.blue, width: 2),
           ),
-          child: Icon(icon, size: 30, color: Colors.blue),
+          child: Column(
+            children: [
+              image,
+              SizedBox(height: 8),
+              Text(label, style: TextStyle(fontSize: 20, color: Colors.blue)),
+            ],
+          ),
         ),
-        SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 14)),
       ],
     );
   }
