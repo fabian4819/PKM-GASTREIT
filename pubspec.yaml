@@ -31,4 +31,7 @@ flutter:
     - images/home_black.png
     - images/input_light.png
     - images/hasil_light.png
+    - images/hasil_black.png
+    - images/home_light.png
+    - images/input_black.png
 

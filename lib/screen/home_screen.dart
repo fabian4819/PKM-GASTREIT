@@ -1,6 +1,8 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
+import 'package:pkm_gastreit/screen/input_screen.dart';
+import 'package:pkm_gastreit/screen/report_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,10 +17,45 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        // Do nothing, since we are already on HomeScreen
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => InputScreen()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReportScreen()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        backgroundColor: Colors.blue,
+      ),
       body: Column(
         children: [
           ClipPath(
@@ -75,6 +112,14 @@ class HomeScreen extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
                           label: 'Input Citra',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InputScreen(),
+                              ),
+                            );
+                          },
                         ),
                         CategoryButton(
                           image: Image.asset(
@@ -84,6 +129,14 @@ class HomeScreen extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
                           label: 'Hasil Citra',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReportScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -151,13 +204,15 @@ class HomeScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: ImageIcon(AssetImage('images/input_light.png')),
-            label: 'Files',
+            label: 'Input',
           ),
           BottomNavigationBarItem(
             icon: ImageIcon(AssetImage('images/hasil_light.png')),
-            label: 'Chat',
+            label: 'Report',
           ),
         ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
@@ -166,15 +221,16 @@ class HomeScreen extends StatelessWidget {
 class CategoryButton extends StatelessWidget {
   final Image image;
   final String label;
+  final VoidCallback onPressed;
 
-  CategoryButton({required this.image, required this.label});
+  CategoryButton({required this.image, required this.label, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         OutlinedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.blue[100],
             shape: RoundedRectangleBorder(
