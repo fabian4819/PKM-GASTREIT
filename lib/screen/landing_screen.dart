@@ -189,7 +189,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     minimumSize: Size(304, 50),
                   ),
                   child: Text(
-                    'SIGN IN',
+                    'LOGIN',
                     style: GoogleFonts.libreFranklin(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -210,7 +210,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     minimumSize: Size(304, 50),
                   ),
                   child: Text(
-                    'SIGN UP',
+                    'REGISTER',
                     style: GoogleFonts.libreFranklin(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
