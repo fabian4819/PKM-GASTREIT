@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "931693259084",
+    "project_id": "pkmgastreit",
+    "storage_bucket": "pkmgastreit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931693259084:android:58ce92c16f25b768c687e9",
+        "android_client_info": {
+          "package_name": "com.example.pkm_gastreit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE3YKYYcwOjonTashZ4uz12L0zS6vCArQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

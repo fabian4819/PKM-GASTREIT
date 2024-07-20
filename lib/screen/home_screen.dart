@@ -96,7 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Center(
                       child: ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InputScreen(),
+                              ),
+                            );},
                         icon: Icon(Icons.add),
                         label: Text('Rekam Citra Medis'),
                         style: ElevatedButton.styleFrom(
