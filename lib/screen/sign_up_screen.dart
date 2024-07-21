@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pkm_gastreit/screen/sign_in_screen.dart';
 
 void main() {
@@ -33,12 +34,72 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _passwordVisible = false;
     _confirmPasswordVisible = false;
+  }
+
+  Future<void> _signUp() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Show alert dialog after successful registration
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Berhasil'),
+            content: Text('Pendaftaran berhasil! Silakan login.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignInScreen()),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      // Handle errors here
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(e.message ?? 'Terjadi kesalahan'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -254,30 +315,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             },
                           ),
                           SizedBox(height: 40),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SignInScreen(),
+                          _isLoading
+                            ? Center(child: CircularProgressIndicator())
+                            : ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    _signUp();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF0A2874),
+                                  minimumSize: Size(double.infinity, 55),
+                                ),
+                                child: Text(
+                                  'REGISTER',
+                                  style: GoogleFonts.libreFranklin(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF0A2874),
-                              minimumSize: Size(double.infinity, 55),
-                            ),
-                            child: Text(
-                              'REGISTER',
-                              style: GoogleFonts.libreFranklin(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ),
                           SizedBox(height: 40),
                           Text(
                             'GASTREIT',
@@ -327,4 +385,3 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
-

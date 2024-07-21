@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pkm_gastreit/screen/sign_up_screen.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 
@@ -28,11 +29,40 @@ class _SignInState extends State<SignInScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _passwordVisible = false;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _passwordVisible = false;
+  }
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -147,29 +177,34 @@ class _SignInState extends State<SignInScreen> {
                             },
                           ),
                           SizedBox(height: 40),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeScreen()),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF0A2874),
-                              minimumSize: Size(double.infinity, 55),
-                            ),
-                            child: Text(
-                              'LOGIN',
-                              style: GoogleFonts.libreFranklin(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          if (_isLoading)
+                            CircularProgressIndicator()
+                          else
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _signIn();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF0A2874),
+                                minimumSize: Size(double.infinity, 55),
+                              ),
+                              child: Text(
+                                'LOGIN',
+                                style: GoogleFonts.libreFranklin(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
+                          SizedBox(height: 20),
+                          if (_errorMessage != null)
+                            Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                            ),
                           SizedBox(height: 40),
                           Text(
                             'GASTREIT',
@@ -217,4 +252,3 @@ class _SignInState extends State<SignInScreen> {
     );
   }
 }
-
