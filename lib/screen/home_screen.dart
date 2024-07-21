@@ -60,9 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
           style: GoogleFonts.ubuntu(
               fontSize: 25,
               fontWeight: FontWeight.w600,
-              color: Color.fromRGBO(10, 40, 116, 1)),
+              color: Colors.white),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
       ),
       body: Column(
         children: [

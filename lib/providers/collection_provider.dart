@@ -11,4 +11,11 @@ class CollectionProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void removeCollection(String collectionName) {
+    if (_selectedCollections.contains(collectionName)) {
+      _selectedCollections.remove(collectionName);
+      notifyListeners();
+    }
+  }
 }

@@ -1,14 +1,14 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, use_build_context_synchronously, prefer_const_constructors, sized_box_for_whitespace, prefer_const_literals_to_create_immutables, avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pkm_gastreit/screen/home_screen.dart';
-import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
+import 'dart:core'; // Import untuk Stopwatch
+import 'package:pkm_gastreit/screen/home_screen.dart';
+import 'package:pkm_gastreit/screen/report_screen.dart';
 
 Future<List<String>> fetchCollectionNames() async {
+  Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
   List<String> collectionNames = [];
   try {
     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('pH_data').get();
@@ -17,6 +17,9 @@ Future<List<String>> fetchCollectionNames() async {
     }
   } catch (e) {
     print(e);
+  } finally {
+    stopwatch.stop(); // Hentikan stopwatch
+    print('Time taken to fetch collections: ${stopwatch.elapsedMilliseconds} ms');
   }
   return collectionNames;
 }
@@ -31,6 +34,7 @@ class _InputScreenState extends State<InputScreen> {
   List<String> _allCollections = [];
   List<String> _filteredCollections = [];
   TextEditingController _searchController = TextEditingController();
+  String _computationTime = ''; // Variabel untuk menyimpan waktu komputasi
 
   @override
   void initState() {
@@ -40,10 +44,13 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   Future<void> _loadCollections() async {
+    Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
     List<String> collections = await fetchCollectionNames();
     setState(() {
       _allCollections = collections;
       _filteredCollections = collections;
+      stopwatch.stop(); // Hentikan stopwatch
+      _computationTime = 'Time taken to load collections: ${stopwatch.elapsedMilliseconds} ms'; // Simpan waktu komputasi
     });
   }
 
@@ -85,36 +92,25 @@ class _InputScreenState extends State<InputScreen> {
     super.dispose();
   }
 
-  Future<void> _showSearchDialog() async {
-    List<String> collectionNames = await fetchCollectionNames();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Collection'),
-          content: Container(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: collectionNames.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(collectionNames[index]),
-                  onTap: () {
-                    Provider.of<CollectionProvider>(context, listen: false).addCollection(collectionNames[index]);
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
+  void _addCollection(String collectionName) {
+    final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+    if (!collectionProvider.selectedCollections.contains(collectionName)) {
+      collectionProvider.addCollection(collectionName);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$collectionName added to the list')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$collectionName is already added')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final collectionProvider = Provider.of<CollectionProvider>(context);
+    final selectedCollections = collectionProvider.selectedCollections;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -173,27 +169,45 @@ class _InputScreenState extends State<InputScreen> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search, color: Color.fromRGBO(10, 40, 116, 1)),
-                  hintText: 'Search collections...',
+                  hintText: 'Search Patient Name...',
                   border: InputBorder.none,
                 ),
               ),
             ),
           ),
+          // Menampilkan waktu komputasi di body
+          if (_computationTime.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                _computationTime,
+                style: GoogleFonts.ubuntu(fontSize: 16, color: Colors.black54),
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               itemCount: _filteredCollections.length,
               itemBuilder: (BuildContext context, int index) {
+                String collectionName = _filteredCollections[index];
+                bool isAdded = selectedCollections.contains(collectionName);
+
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   elevation: 3,
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
                     title: Text(
-                      _filteredCollections[index],
+                      collectionName,
                       style: GoogleFonts.ubuntu(fontSize: 16),
                     ),
+                    trailing: isAdded
+                        ? Icon(Icons.check, color: Colors.green)
+                        : IconButton(
+                            icon: Icon(Icons.add, color: Color.fromRGBO(10, 40, 116, 1)),
+                            onPressed: () => _addCollection(collectionName),
+                          ),
                     onTap: () {
-                      Provider.of<CollectionProvider>(context, listen: false).addCollection(_filteredCollections[index]);
+                      // Optional: Perform some action on tap
                     },
                   ),
                 );

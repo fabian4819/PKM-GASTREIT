@@ -5,6 +5,7 @@ import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
+import 'dart:core'; // Import untuk Stopwatch
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -14,6 +15,8 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   int _selectedIndex = 0;
   List<Map<String, dynamic>> reportDataList = [];
+  List<String> documentIds = [];
+  String computationTime = '';
 
   @override
   void initState() {
@@ -21,22 +24,75 @@ class _ReportScreenState extends State<ReportScreen> {
     _fetchReportData();
   }
 
-  void _fetchReportData() async {
+  Future<void> _fetchReportData() async {
+    Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
     final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
     List<String> selectedCollections = collectionProvider.selectedCollections;
+
+    List<Map<String, dynamic>> tempDataList = [];
+    List<String> tempDocumentIds = [];
 
     for (String collectionName in selectedCollections) {
       try {
         DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('pH_data').doc(collectionName).get();
         if (snapshot.exists) {
-          setState(() {
-            reportDataList.add(snapshot.data() as Map<String, dynamic>);
-          });
+          tempDataList.add(snapshot.data() as Map<String, dynamic>);
+          tempDocumentIds.add(snapshot.id);
         }
       } catch (e) {
         print(e);
       }
     }
+
+    stopwatch.stop(); // Hentikan stopwatch
+    setState(() {
+      reportDataList = tempDataList;
+      documentIds = tempDocumentIds;
+      computationTime = 'Time taken to fetch data: ${stopwatch.elapsedMilliseconds} ms';
+    });
+  }
+
+  void _deleteCollection(String collectionName) {
+    final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+    collectionProvider.removeCollection(collectionName);
+
+    setState(() {
+      // Update reportDataList and documentIds based on the removed collection
+      int index = documentIds.indexOf(collectionName);
+      if (index != -1) {
+        reportDataList.removeAt(index);
+        documentIds.removeAt(index);
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Collection removed from the list')));
+  }
+
+  Future<void> _showDeleteConfirmationDialog(String collectionName) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to remove this collection from the list?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteCollection(collectionName);
+              },
+              child: Text('Remove'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onItemTapped(int index) {
@@ -72,38 +128,66 @@ class _ReportScreenState extends State<ReportScreen> {
           style: GoogleFonts.ubuntu(
               fontSize: 25,
               fontWeight: FontWeight.w600,
-              color: Color.fromRGBO(10, 40, 116, 1)),
+              color: Colors.white),
         ),
         leadingWidth: 100,
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
       ),
-      body: reportDataList.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: reportDataList.length,
-              itemBuilder: (context, index) {
-                var reportData = reportDataList[index];
-                return Card(
-                  margin: EdgeInsets.all(10.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (reportData['plot_url'] != null)
-                          Image.network(reportData['plot_url']),
-                        if (reportData['mean_ph'] != null)
-                          Text(
-                            'Mean pH: ${reportData['mean_ph']}',
-                            style: GoogleFonts.ubuntu(
-                                fontSize: 20, fontWeight: FontWeight.w600),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+      body: Column(
+        children: [
+          // Menampilkan waktu komputasi di body
+          if (computationTime.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                computationTime,
+                style: GoogleFonts.ubuntu(fontSize: 16, color: Colors.black54),
+              ),
             ),
+          Expanded(
+            child: reportDataList.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: reportDataList.length,
+                    itemBuilder: (context, index) {
+                      var reportData = reportDataList[index];
+                      var documentId = documentIds[index];
+                      return Card(
+                        margin: EdgeInsets.all(10.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (reportData['plot_url'] != null)
+                                      Image.network(reportData['plot_url']),
+                                    if (reportData['mean_ph'] != null)
+                                      Text(
+                                        'Mean pH: ${reportData['mean_ph']}',
+                                        style: GoogleFonts.ubuntu(
+                                            fontSize: 20, fontWeight: FontWeight.w600),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _showDeleteConfirmationDialog(documentId),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
