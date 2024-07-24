@@ -22,6 +22,7 @@ class InformationScreen extends StatelessWidget {
               fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        iconTheme: IconThemeData(color: Colors.white), // Set back arrow color to white
       ),
       body: SingleChildScrollView(
         child: Column(

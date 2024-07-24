@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
@@ -6,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pkm_gastreit/screen/profile_screen.dart'; // Import layar profil
 import 'package:pkm_gastreit/screen/sign_in_screen.dart'; // Import layar login
 import 'package:pkm_gastreit/screen/information_screen.dart'; // Import layar detail informasi
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,49 +55,133 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<String> _getUserFullName() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final data = userDoc.data();
+      return data?['fullName'] ?? user.displayName ?? 'User';
+    }
+    return 'User';
+  }
+
+  // String _getNameFromEmail(String email) {
+  // final namePart = email.split('@').first;
+  // final name = namePart
+  //     .split('.')
+  //     .map((s) => s[0].toUpperCase() + s.substring(1))
+  //     .join(' ');
+  // return name;
+  // }
+
+  // Future<void> _signOut() async {
+  // await FirebaseAuth.instance.signOut();
+  // showDialog(
+  //   context: context,
+  //   builder: (BuildContext context) {
+  //     return AlertDialog(
+  //       title: Text('Sign Out'),
+  //       content: Text('You have successfully signed out.'),
+  //       actions: <Widget>[
+  //         TextButton(
+  //           child: Text('OK'),
+  //           onPressed: () {
+  //             Navigator.of(context).pop(); // Menutup dialog
+  //             Navigator.pushAndRemoveUntil(
+  //               context,
+  //               MaterialPageRoute(
+  //                 builder: (context) => SignInScreen(), // Navigasi kembali ke layar login
+  //               ),
+  //               (Route<dynamic> route) => false, // Menghapus semua layar sebelumnya
+  //             );
+  //           },
+  //         ),
+  //       ],
+  //     );
+  //   },
+  // );
+  // }
+
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => SignInScreen()), // Navigasi kembali ke layar login
+      MaterialPageRoute(
+        builder: (context) => SignInScreen(), // Navigasi kembali ke layar login
+      ),
+      (Route<dynamic> route) => false, // Menghapus semua layar sebelumnya
     );
   }
+
+  // Future<void> _signOut() async {
+  //   await FirebaseAuth.instance.signOut();
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Sign Out'),
+  //         content: Text('You have successfully signed out.'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('OK'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               Navigator.pushReplacement(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                     builder: (context) =>
+  //                         SignInScreen()), // Navigasi kembali ke layar login
+  //               );
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   List<InfoItem> getInfoItems() {
     return [
       InfoItem(
-  imageUrl: 'images/informasimenarik1.png',
-  title: 'Apa Itu GERD?',
-  description: 'GERD (Gastroesophageal Reflux Disease) adalah kondisi medis yang ditandai dengan aliran balik asam lambung ke dalam kerongkongan, yang menyebabkan iritasi pada dinding kerongkongan. Kondisi ini sering menyebabkan gejala seperti nyeri ulu hati yang tajam, regurgitasi asam, dan sensasi terbakar di dada. Jika tidak diobati, GERD dapat mengakibatkan komplikasi serius, seperti esofagitis atau bahkan kerusakan permanen pada kerongkongan.\n\nGejala GERD dapat bervariasi dari ringan hingga berat. Beberapa orang mungkin mengalami batuk kronis, rasa asam di mulut, atau suara serak. Penting untuk memahami gejala ini dan mencari diagnosis yang tepat untuk mengelola kondisi ini secara efektif.\n\nPerawatan GERD umumnya melibatkan perubahan gaya hidup, obat-obatan, dan dalam kasus tertentu, prosedur medis. Mengidentifikasi pemicu dan mengadopsi kebiasaan makan yang sehat bisa membantu mengurangi gejala dan meningkatkan kualitas hidup.',
-),
-InfoItem(
-  imageUrl: 'images/informasimenarik2.png',
-  title: 'Faktor Risiko dan Penyebab GERD',
-  description: 'Beberapa faktor risiko dapat meningkatkan kemungkinan seseorang mengembangkan GERD. Obesitas adalah salah satu penyebab utama, karena tekanan ekstra pada perut dapat memaksa asam lambung kembali ke kerongkongan. Konsumsi alkohol, makanan berlemak, dan makanan pedas juga dapat memicu gejala GERD dengan melemahkan otot sfingter esofagus bagian bawah yang seharusnya mencegah asam lambung naik.\n\nKebiasaan makan seperti makan dalam jumlah besar atau makan sebelum tidur dapat memperburuk kondisi ini. Selain itu, merokok juga diketahui dapat meningkatkan risiko GERD dengan merelaksasi otot sfingter esofagus dan mempengaruhi produksi asam lambung.\n\nMengidentifikasi dan mengelola faktor risiko ini dapat membantu mencegah timbulnya GERD atau mengurangi keparahan gejala. Pendekatan seperti perubahan diet, penurunan berat badan, dan berhenti merokok dapat menjadi langkah penting dalam pengelolaan kondisi ini.',
-),
-InfoItem(
-  imageUrl: 'images/informasimenarik1.png',
-  title: 'Gejala GERD dan Cara Mengenalinya',
-  description: 'Gejala GERD sering kali mirip dengan kondisi medis lainnya, sehingga diagnosis yang tepat bisa menantang. Gejala utama GERD termasuk nyeri ulu hati yang terasa seperti terbakar, regurgitasi asam yang mungkin disertai dengan rasa pahit di mulut, dan kesulitan menelan. Gejala ini bisa datang setelah makan atau saat berbaring, dan sering kali terasa lebih buruk pada malam hari.\n\nSelain gejala utama, beberapa penderita mungkin mengalami batuk kronis, suara serak, atau sensasi ada benjolan di tenggorokan. Gejala ini mungkin diperburuk oleh makanan tertentu, seperti makanan pedas atau berlemak, serta minuman beralkohol dan berkafein.\n\nJika Anda mengalami gejala ini secara teratur dan mengganggu aktivitas sehari-hari, penting untuk berkonsultasi dengan dokter untuk evaluasi dan pengelolaan yang tepat. Diagnosis awal dan perawatan yang efektif dapat membantu mengurangi risiko komplikasi dan meningkatkan kualitas hidup.',
-),
-InfoItem(
-  imageUrl: 'images/informasimenarik2.png',
-  title: 'Kebiasaan Makan yang Mempengaruhi Kesehatan Lambung',
-  description: 'Kebiasaan makan dapat memainkan peran penting dalam kesehatan lambung dan risiko GERD. Makan terlalu cepat atau dalam porsi besar dapat memberikan tekanan berlebih pada perut, memaksa asam lambung naik ke kerongkongan. Selain itu, makan sebelum tidur dapat meningkatkan risiko refluks asam karena posisi berbaring memudahkan asam untuk naik kembali.\n\nMengonsumsi makanan tertentu seperti makanan pedas, berlemak, atau berkafein dapat memperburuk gejala GERD. Menghindari makanan ini dan menggantinya dengan makanan yang lebih ramah lambung, seperti sayuran, buah-buahan non-asam, dan protein tanpa lemak, dapat membantu mengurangi gejala.\n\nMempraktikkan kebiasaan makan sehat, seperti makan dalam porsi kecil, menghindari makan larut malam, dan mengurangi konsumsi makanan pemicu, dapat membantu menjaga kesehatan lambung dan mencegah timbulnya GERD.',
-),
-InfoItem(
-  imageUrl: 'images/informasimenarik1.png',
-  title: 'Pengelolaan GERD melalui Perubahan Gaya Hidup',
-  description: 'Mengelola GERD memerlukan pendekatan komprehensif yang mencakup perubahan gaya hidup. Salah satu langkah utama adalah memperbaiki pola makan, dengan menghindari makanan dan minuman yang dapat memicu gejala, seperti makanan berlemak, pedas, dan alkohol. Memilih makanan yang lebih sehat, seperti makanan rendah asam dan tinggi serat, dapat membantu mengurangi gejala.\n\nSelain perubahan diet, peningkatan aktivitas fisik dan pengelolaan stres juga dapat membantu mengatasi GERD. Aktivitas fisik yang teratur membantu menjaga berat badan yang sehat, sementara teknik pengelolaan stres seperti yoga atau meditasi dapat mengurangi frekuensi gejala.\n\nMengadopsi kebiasaan hidup sehat, seperti makan dengan porsi kecil, menghindari makan sebelum tidur, dan tidak berbaring segera setelah makan, dapat berkontribusi pada pengelolaan GERD yang efektif dan meningkatkan kualitas hidup secara keseluruhan.',
-),
-
+        imageUrl: 'images/informasimenarik1.png',
+        title: 'Apa Itu GERD?',
+        description:
+            'GERD (Gastroesophageal Reflux Disease) adalah kondisi medis yang ditandai dengan aliran balik asam lambung ke dalam kerongkongan, yang menyebabkan iritasi pada dinding kerongkongan. Kondisi ini sering menyebabkan gejala seperti nyeri ulu hati yang tajam, regurgitasi asam, dan sensasi terbakar di dada. Jika tidak diobati, GERD dapat mengakibatkan komplikasi serius, seperti esofagitis atau bahkan kerusakan permanen pada kerongkongan.\n\nGejala GERD dapat bervariasi dari ringan hingga berat. Beberapa orang mungkin mengalami batuk kronis, rasa asam di mulut, atau suara serak. Penting untuk memahami gejala ini dan mencari diagnosis yang tepat untuk mengelola kondisi ini secara efektif.\n\nPerawatan GERD umumnya melibatkan perubahan gaya hidup, obat-obatan, dan dalam kasus tertentu, prosedur medis. Mengidentifikasi pemicu dan mengadopsi kebiasaan makan yang sehat bisa membantu mengurangi gejala dan meningkatkan kualitas hidup.',
+      ),
+      InfoItem(
+        imageUrl: 'images/informasimenarik2.png',
+        title: 'Faktor Risiko dan Penyebab GERD',
+        description:
+            'Beberapa faktor risiko dapat meningkatkan kemungkinan seseorang mengembangkan GERD. Obesitas adalah salah satu penyebab utama, karena tekanan ekstra pada perut dapat memaksa asam lambung kembali ke kerongkongan. Konsumsi alkohol, makanan berlemak, dan makanan pedas juga dapat memicu gejala GERD dengan melemahkan otot sfingter esofagus bagian bawah yang seharusnya mencegah asam lambung naik.\n\nKebiasaan makan seperti makan dalam jumlah besar atau makan sebelum tidur dapat memperburuk kondisi ini. Selain itu, merokok juga diketahui dapat meningkatkan risiko GERD dengan merelaksasi otot sfingter esofagus dan mempengaruhi produksi asam lambung.\n\nMengidentifikasi dan mengelola faktor risiko ini dapat membantu mencegah timbulnya GERD atau mengurangi keparahan gejala. Pendekatan seperti perubahan diet, penurunan berat badan, dan berhenti merokok dapat menjadi langkah penting dalam pengelolaan kondisi ini.',
+      ),
+      InfoItem(
+        imageUrl: 'images/informasimenarik1.png',
+        title: 'Gejala GERD dan Cara Mengenalinya',
+        description:
+            'Gejala GERD sering kali mirip dengan kondisi medis lainnya, sehingga diagnosis yang tepat bisa menantang. Gejala utama GERD termasuk nyeri ulu hati yang terasa seperti terbakar, regurgitasi asam yang mungkin disertai dengan rasa pahit di mulut, dan kesulitan menelan. Gejala ini bisa datang setelah makan atau saat berbaring, dan sering kali terasa lebih buruk pada malam hari.\n\nSelain gejala utama, beberapa penderita mungkin mengalami batuk kronis, suara serak, atau sensasi ada benjolan di tenggorokan. Gejala ini mungkin diperburuk oleh makanan tertentu, seperti makanan pedas atau berlemak, serta minuman beralkohol dan berkafein.\n\nJika Anda mengalami gejala ini secara teratur dan mengganggu aktivitas sehari-hari, penting untuk berkonsultasi dengan dokter untuk evaluasi dan pengelolaan yang tepat. Diagnosis awal dan perawatan yang efektif dapat membantu mengurangi risiko komplikasi dan meningkatkan kualitas hidup.',
+      ),
+      InfoItem(
+        imageUrl: 'images/informasimenarik2.png',
+        title: 'Kebiasaan Makan yang Mempengaruhi Kesehatan Lambung',
+        description:
+            'Kebiasaan makan dapat memainkan peran penting dalam kesehatan lambung dan risiko GERD. Makan terlalu cepat atau dalam porsi besar dapat memberikan tekanan berlebih pada perut, memaksa asam lambung naik ke kerongkongan. Selain itu, makan sebelum tidur dapat meningkatkan risiko refluks asam karena posisi berbaring memudahkan asam untuk naik kembali.\n\nMengonsumsi makanan tertentu seperti makanan pedas, berlemak, atau berkafein dapat memperburuk gejala GERD. Menghindari makanan ini dan menggantinya dengan makanan yang lebih ramah lambung, seperti sayuran, buah-buahan non-asam, dan protein tanpa lemak, dapat membantu mengurangi gejala.\n\nMempraktikkan kebiasaan makan sehat, seperti makan dalam porsi kecil, menghindari makan larut malam, dan mengurangi konsumsi makanan pemicu, dapat membantu menjaga kesehatan lambung dan mencegah timbulnya GERD.',
+      ),
+      InfoItem(
+        imageUrl: 'images/informasimenarik1.png',
+        title: 'Pengelolaan GERD melalui Perubahan Gaya Hidup',
+        description:
+            'Mengelola GERD memerlukan pendekatan komprehensif yang mencakup perubahan gaya hidup. Salah satu langkah utama adalah memperbaiki pola makan, dengan menghindari makanan dan minuman yang dapat memicu gejala, seperti makanan berlemak, pedas, dan alkohol. Memilih makanan yang lebih sehat, seperti makanan rendah asam dan tinggi serat, dapat membantu mengurangi gejala.\n\nSelain perubahan diet, peningkatan aktivitas fisik dan pengelolaan stres juga dapat membantu mengatasi GERD. Aktivitas fisik yang teratur membantu menjaga berat badan yang sehat, sementara teknik pengelolaan stres seperti yoga atau meditasi dapat mengurangi frekuensi gejala.\n\nMengadopsi kebiasaan hidup sehat, seperti makan dengan porsi kecil, menghindari makan sebelum tidur, dan tidak berbaring segera setelah makan, dapat berkontribusi pada pengelolaan GERD yang efektif dan meningkatkan kualitas hidup secara keseluruhan.',
+      ),
     ];
   }
 
-  Future<String> _getUserName() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    return user?.displayName?.split(' ').first ?? 'User';
-  }
+  // Future<String> _getUserName() async {
+  //   final User? user = FirebaseAuth.instance.currentUser;
+  //   return user?.displayName?.split(' ').first ?? 'User';
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -104,14 +191,22 @@ InfoItem(
         title: Text(
           'Home',
           style: GoogleFonts.ubuntu(
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
-              color: Colors.white),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle),
+            icon: Icon(Icons.refresh,
+                color: Colors.white), // Reload icon with white color
+            onPressed: () {
+              setState(() {
+                // Trigger a rebuild of the screen
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle,
+                color: Colors.white), // Profile icon with white color
             onPressed: () {
               Navigator.push(
                 context,
@@ -120,7 +215,8 @@ InfoItem(
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout,
+                color: Colors.white), // Logout icon with white color
             onPressed: _signOut,
           ),
         ],
@@ -137,7 +233,7 @@ InfoItem(
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: FutureBuilder<String>(
-                    future: _getUserName(),
+                    future: _getUserFullName(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Text(
@@ -157,9 +253,19 @@ InfoItem(
                             fontWeight: FontWeight.bold,
                           ),
                         );
+                      } else if (snapshot.hasData) {
+                        final userName = snapshot.data ?? 'User';
+                        return Text(
+                          'Hi, $userName\nWelcome back',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
                       } else {
                         return Text(
-                          'Hi, ${snapshot.data}\nWelcome back',
+                          'Hi, User\nWelcome back',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -173,11 +279,11 @@ InfoItem(
               ),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 0),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(5.0),
+                padding: EdgeInsets.all(0.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -247,7 +353,7 @@ InfoItem(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 2),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,11 +369,14 @@ InfoItem(
                             ),
                           ),
                           Container(
-                            height: 200, // Set the height for horizontal scroll area
+                            height:
+                                200, // Set the height for horizontal scroll area
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               padding: EdgeInsets.zero,
-                              children: getInfoItems().map((item) => InfoCard(item: item)).toList(),
+                              children: getInfoItems()
+                                  .map((item) => InfoCard(item: item))
+                                  .toList(),
                             ),
                           ),
                         ],
@@ -401,7 +510,9 @@ class InfoCard extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4)
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

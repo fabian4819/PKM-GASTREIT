@@ -1,9 +1,8 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Tambahkan import ini
 import 'package:pkm_gastreit/screen/sign_in_screen.dart';
 
 void main() {
@@ -44,17 +43,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+  try {
+    // Coba mendaftar pengguna baru
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-      // Show alert dialog after successful registration
+    User? user = userCredential.user;
+    if (user != null) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      await firestore.collection('users').doc(user.uid).set({
+        'fullName': _nameController.text,
+        'phoneNumber': _phoneController.text,
+        'email': user.email,
+      });
+
+      // Tampilkan dialog setelah pendaftaran berhasil
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -76,8 +85,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         },
       );
-    } on FirebaseAuthException catch (e) {
-      // Handle errors here
+    }
+  } on FirebaseAuthException catch (e) {
+    // Tangani kesalahan jika email sudah digunakan
+    if (e.code == 'email-already-in-use') {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Email Sudah Terdaftar'),
+            content: Text('Email yang Anda masukkan sudah digunakan oleh akun lain.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Tangani kesalahan lainnya
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -95,17 +125,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         },
       );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Register',
           style: GoogleFonts.ubuntu(

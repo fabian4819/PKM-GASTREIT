@@ -69,6 +69,7 @@ class _SignInState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Login',
           style: GoogleFonts.ubuntu(
