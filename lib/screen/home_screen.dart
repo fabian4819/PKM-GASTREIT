@@ -158,19 +158,19 @@ class _HomeScreenState extends State<HomeScreen> {
             'Beberapa faktor risiko dapat meningkatkan kemungkinan seseorang mengembangkan GERD. Obesitas adalah salah satu penyebab utama, karena tekanan ekstra pada perut dapat memaksa asam lambung kembali ke kerongkongan. Konsumsi alkohol, makanan berlemak, dan makanan pedas juga dapat memicu gejala GERD dengan melemahkan otot sfingter esofagus bagian bawah yang seharusnya mencegah asam lambung naik.\n\nKebiasaan makan seperti makan dalam jumlah besar atau makan sebelum tidur dapat memperburuk kondisi ini. Selain itu, merokok juga diketahui dapat meningkatkan risiko GERD dengan merelaksasi otot sfingter esofagus dan mempengaruhi produksi asam lambung.\n\nMengidentifikasi dan mengelola faktor risiko ini dapat membantu mencegah timbulnya GERD atau mengurangi keparahan gejala. Pendekatan seperti perubahan diet, penurunan berat badan, dan berhenti merokok dapat menjadi langkah penting dalam pengelolaan kondisi ini.',
       ),
       InfoItem(
-        imageUrl: 'images/informasimenarik1.png',
+        imageUrl: 'images/informasimenarik3.png',
         title: 'Gejala GERD dan Cara Mengenalinya',
         description:
             'Gejala GERD sering kali mirip dengan kondisi medis lainnya, sehingga diagnosis yang tepat bisa menantang. Gejala utama GERD termasuk nyeri ulu hati yang terasa seperti terbakar, regurgitasi asam yang mungkin disertai dengan rasa pahit di mulut, dan kesulitan menelan. Gejala ini bisa datang setelah makan atau saat berbaring, dan sering kali terasa lebih buruk pada malam hari.\n\nSelain gejala utama, beberapa penderita mungkin mengalami batuk kronis, suara serak, atau sensasi ada benjolan di tenggorokan. Gejala ini mungkin diperburuk oleh makanan tertentu, seperti makanan pedas atau berlemak, serta minuman beralkohol dan berkafein.\n\nJika Anda mengalami gejala ini secara teratur dan mengganggu aktivitas sehari-hari, penting untuk berkonsultasi dengan dokter untuk evaluasi dan pengelolaan yang tepat. Diagnosis awal dan perawatan yang efektif dapat membantu mengurangi risiko komplikasi dan meningkatkan kualitas hidup.',
       ),
       InfoItem(
-        imageUrl: 'images/informasimenarik2.png',
+        imageUrl: 'images/informasimenarik4.png',
         title: 'Kebiasaan Makan yang Mempengaruhi Kesehatan Lambung',
         description:
             'Kebiasaan makan dapat memainkan peran penting dalam kesehatan lambung dan risiko GERD. Makan terlalu cepat atau dalam porsi besar dapat memberikan tekanan berlebih pada perut, memaksa asam lambung naik ke kerongkongan. Selain itu, makan sebelum tidur dapat meningkatkan risiko refluks asam karena posisi berbaring memudahkan asam untuk naik kembali.\n\nMengonsumsi makanan tertentu seperti makanan pedas, berlemak, atau berkafein dapat memperburuk gejala GERD. Menghindari makanan ini dan menggantinya dengan makanan yang lebih ramah lambung, seperti sayuran, buah-buahan non-asam, dan protein tanpa lemak, dapat membantu mengurangi gejala.\n\nMempraktikkan kebiasaan makan sehat, seperti makan dalam porsi kecil, menghindari makan larut malam, dan mengurangi konsumsi makanan pemicu, dapat membantu menjaga kesehatan lambung dan mencegah timbulnya GERD.',
       ),
       InfoItem(
-        imageUrl: 'images/informasimenarik1.png',
+        imageUrl: 'images/informasimenarik5.png',
         title: 'Pengelolaan GERD melalui Perubahan Gaya Hidup',
         description:
             'Mengelola GERD memerlukan pendekatan komprehensif yang mencakup perubahan gaya hidup. Salah satu langkah utama adalah memperbaiki pola makan, dengan menghindari makanan dan minuman yang dapat memicu gejala, seperti makanan berlemak, pedas, dan alkohol. Memilih makanan yang lebih sehat, seperti makanan rendah asam dan tinggi serat, dapat membantu mengurangi gejala.\n\nSelain perubahan diet, peningkatan aktivitas fisik dan pengelolaan stres juga dapat membantu mengatasi GERD. Aktivitas fisik yang teratur membantu menjaga berat badan yang sehat, sementara teknik pengelolaan stres seperti yoga atau meditasi dapat mengurangi frekuensi gejala.\n\nMengadopsi kebiasaan hidup sehat, seperti makan dengan porsi kecil, menghindari makan sebelum tidur, dan tidak berbaring segera setelah makan, dapat berkontribusi pada pengelolaan GERD yang efektif dan meningkatkan kualitas hidup secara keseluruhan.',

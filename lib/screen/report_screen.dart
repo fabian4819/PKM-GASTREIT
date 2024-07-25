@@ -5,7 +5,7 @@ import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
-import 'dart:core'; // Import untuk Stopwatch
+import 'dart:core';
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -17,6 +17,7 @@ class _ReportScreenState extends State<ReportScreen> {
   List<Map<String, dynamic>> reportDataList = [];
   List<String> documentIds = [];
   String computationTime = '';
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -25,7 +26,7 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _fetchReportData() async {
-    Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
+    Stopwatch stopwatch = Stopwatch()..start();
     final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
     List<String> selectedCollections = collectionProvider.selectedCollections;
 
@@ -44,11 +45,12 @@ class _ReportScreenState extends State<ReportScreen> {
       }
     }
 
-    stopwatch.stop(); // Hentikan stopwatch
+    stopwatch.stop();
     setState(() {
       reportDataList = tempDataList;
       documentIds = tempDocumentIds;
       computationTime = 'Time taken to fetch data: ${stopwatch.elapsedMilliseconds} ms';
+      isLoading = false;
     });
   }
 
@@ -57,7 +59,6 @@ class _ReportScreenState extends State<ReportScreen> {
     collectionProvider.removeCollection(collectionName);
 
     setState(() {
-      // Update reportDataList and documentIds based on the removed collection
       int index = documentIds.indexOf(collectionName);
       if (index != -1) {
         reportDataList.removeAt(index);
@@ -135,7 +136,6 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
       body: Column(
         children: [
-          // Menampilkan waktu komputasi di body
           if (computationTime.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -145,46 +145,48 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
             ),
           Expanded(
-            child: reportDataList.isEmpty
+            child: isLoading
                 ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: reportDataList.length,
-                    itemBuilder: (context, index) {
-                      var reportData = reportDataList[index];
-                      var documentId = documentIds[index];
-                      return Card(
-                        margin: EdgeInsets.all(10.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (reportData['plot_url'] != null)
-                                      Image.network(reportData['plot_url']),
-                                    if (reportData['mean_ph'] != null)
-                                      Text(
-                                        'Mean pH: ${reportData['mean_ph']}',
-                                        style: GoogleFonts.ubuntu(
-                                            fontSize: 20, fontWeight: FontWeight.w600),
-                                      ),
-                                  ],
-                                ),
+                : reportDataList.isEmpty
+                    ? Center(child: Text('No data available', style: GoogleFonts.ubuntu(fontSize: 18, color: Colors.black54)))
+                    : ListView.builder(
+                        itemCount: reportDataList.length,
+                        itemBuilder: (context, index) {
+                          var reportData = reportDataList[index];
+                          var documentId = documentIds[index];
+                          return Card(
+                            margin: EdgeInsets.all(10.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (reportData['plot_url'] != null)
+                                          Image.network(reportData['plot_url']),
+                                        if (reportData['mean_ph'] != null)
+                                          Text(
+                                            'Mean pH: ${reportData['mean_ph']}',
+                                            style: GoogleFonts.ubuntu(
+                                                fontSize: 20, fontWeight: FontWeight.w600),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => _showDeleteConfirmationDialog(documentId),
+                                  ),
+                                ],
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _showDeleteConfirmationDialog(documentId),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
