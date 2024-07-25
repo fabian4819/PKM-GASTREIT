@@ -30,7 +30,7 @@ class InputScreen extends StatefulWidget {
 }
 
 class _InputScreenState extends State<InputScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   List<String> _allCollections = [];
   List<String> _filteredCollections = [];
   TextEditingController _searchController = TextEditingController();

@@ -92,27 +92,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _fetchRandomAvatar() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final randomId = DateTime.now().millisecondsSinceEpoch;
-      final url = 'https://avatars.dicebear.com/api/initials/$randomId.svg';
-
-      setState(() {
-        _selectedAvatarUrl = url;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching avatar: $e')),
-      );
-    }
+  void _showAvatarSelectionModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return GridView.builder(
+          padding: const EdgeInsets.all(10.0),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 10.0,
+          ),
+          itemCount: 2, // Number of avatar images
+          itemBuilder: (context, index) {
+            final avatarAsset = 'images/avatar${index + 1}.png';
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedAvatarUrl = avatarAsset;
+                });
+                Navigator.pop(context);
+              },
+              child: Image.asset(avatarAsset),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -142,7 +148,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     Center(
                       child: GestureDetector(
-                        onTap: _fetchRandomAvatar,
+                        onTap: _showAvatarSelectionModal,
                         child: Container(
                           width: 100,
                           height: 100,
@@ -151,10 +157,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             color: Colors.blue,
                           ),
                           child: _selectedAvatarUrl.isNotEmpty
-                              ? SvgPicture.network(
+                              ? Image.asset(
                                   _selectedAvatarUrl,
-                                  placeholderBuilder: (context) => Center(
-                                      child: CircularProgressIndicator()),
                                   fit: BoxFit.cover,
                                 )
                               : Icon(

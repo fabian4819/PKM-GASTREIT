@@ -13,7 +13,7 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   List<Map<String, dynamic>> reportDataList = [];
   List<String> documentIds = [];
   String computationTime = '';

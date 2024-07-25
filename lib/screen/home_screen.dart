@@ -229,52 +229,52 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 220,
               color: Colors.blue,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0.0),
+                padding: EdgeInsets.fromLTRB(16.0, 30.0, 16.0, 0.0),
                 child: Align(
                   alignment: Alignment.topLeft,
-                  child: FutureBuilder<String>(
-                    future: _getUserFullName(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text(
-                          'Hi, loading...\nWelcome back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text(
-                          'Hi, User\nWelcome back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        final userName = snapshot.data ?? 'User';
-                        return Text(
-                          'Hi, $userName\nWelcome back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      } else {
-                        return Text(
-                          'Hi, User\nWelcome back',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FutureBuilder<String>(
+                      future: _getUserFullName(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}',
+                              style: GoogleFonts.ubuntu(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black));
+                        } else if (snapshot.hasData) {
+                          return Padding(
+                            padding: EdgeInsets.all(0.0),
+                            child: Text(
+                              'Hi, ${snapshot.data}!',
+                              style: GoogleFonts.ubuntu(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white),
+                            ),
+                          );
+                        } else {
+                          return Text('Hi, User!',
+                              style: GoogleFonts.ubuntu(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black));
+                        }
+                      },
+                    ),
+                    Text(
+                      'Pantau Kesehatan Lambungmu',
+                      style: GoogleFonts.ubuntu(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF041E60)),
+                    ),
+                  ],
+                ),
                 ),
               ),
             ),
@@ -287,35 +287,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => InputScreen(),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.add),
-                        label: Text('Rekam Citra Medis'),
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         CategoryButton(
                           image: Image.asset(
                             "images/Icon-InputCitra.png",
-                            width: 100,
+                            width: 130,
                             height: 100,
                             fit: BoxFit.contain,
                           ),
@@ -332,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         CategoryButton(
                           image: Image.asset(
                             "images/Icon-HasilCitra.png",
-                            width: 100,
+                            width: 130,
                             height: 100,
                             fit: BoxFit.contain,
                           ),
@@ -349,39 +327,45 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: 40),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              'Informasi Menarik',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            height:
-                                200, // Set the height for horizontal scroll area
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.zero,
-                              children: getInfoItems()
-                                  .map((item) => InfoCard(item: item))
-                                  .toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    Align(
+  alignment: Alignment.center,
+  child: Container(
+    width: 380, // Set the width of the blue container to 350
+    padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.blue, width: 2),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(
+            'Informasi Menarik',
+            style: GoogleFonts.ubuntu(
+              color: Color(0xFF041E60),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          height: 180, // Set the height for horizontal scroll area
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            children: getInfoItems()
+                .map((item) => InfoCard(item: item))
+                .toList(),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+
                   ],
                 ),
               ),
@@ -506,34 +490,69 @@ class InfoCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 150,
-        margin: EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4)
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Image.asset(
-                item.imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                item.title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
+  width: 150,
+  height: 200,
+  margin: EdgeInsets.symmetric(horizontal: 8),
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.15),
+        offset: Offset(0, 4),
+        blurRadius: 8,
       ),
+    ],
+    gradient: LinearGradient(
+      colors: [Colors.white, Colors.grey[200]!],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+  ),
+  child: SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          child: Container(
+            height: 100,
+            width: 600,
+            child: Image.asset(
+              item.imageUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                item.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+)
     );
   }
 }

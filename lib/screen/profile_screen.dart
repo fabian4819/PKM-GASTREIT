@@ -6,19 +6,32 @@ import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
 import 'package:pkm_gastreit/screen/sign_in_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   Future<Map<String, String>> _getUserData() async {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return {'fullName': 'N/A', 'phoneNumber': 'N/A'};
+      return {
+        'fullName': 'N/A',
+        'phoneNumber': 'N/A',
+        'avatarUrl': '', // Default or empty avatar URL
+      };
     }
 
-    final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
     final data = userDoc.data() as Map<String, dynamic>;
 
     return {
       'fullName': data['fullName'] ?? 'N/A',
       'phoneNumber': data['phoneNumber'] ?? 'N/A',
+      'avatarUrl': user.photoURL ?? '', // Fetch avatar URL from FirebaseAuth
     };
   }
 
@@ -50,6 +63,14 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
         actions: [
           IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                // Trigger a rebuild of the screen
+              });
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.edit, color: Colors.white),
             onPressed: () {
               Navigator.push(
@@ -71,7 +92,7 @@ class ProfileScreen extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
-              final userData = snapshot.data ?? {'fullName': 'N/A', 'phoneNumber': 'N/A'};
+              final userData = snapshot.data ?? {'fullName': 'N/A', 'phoneNumber': 'N/A', 'avatarUrl': ''};
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,11 +101,18 @@ class ProfileScreen extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.blue,
-                      child: Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.white,
-                      ),
+                      backgroundImage: userData['avatarUrl']!.isNotEmpty
+                          ? (userData['avatarUrl']!.startsWith('http')
+                              ? NetworkImage(userData['avatarUrl']!)
+                              : AssetImage(userData['avatarUrl']!) as ImageProvider)
+                          : null,
+                      child: userData['avatarUrl']!.isEmpty
+                          ? Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.white,
+                            )
+                          : null,
                     ),
                   ),
                   SizedBox(height: 20),
