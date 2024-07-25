@@ -5,12 +5,6 @@ workflows:
     environment:
       vars:
         FLUTTER_VERSION: "stable"
-    triggers:
-      on:
-        push:
-          branches:
-            only:
-              - main
     scripts:
       - name: Install dependencies
         script: |
