@@ -4,5 +4,6 @@ target 'Runner' do
   use_frameworks!
   pod 'Firebase/Core'
   pod 'Firebase/Storage'
+  pod 'Firebase/Firestore'
   # Tambahkan pod lainnya jika perlu
 end
