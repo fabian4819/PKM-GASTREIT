@@ -1,6 +1,6 @@
 name: Build iOS
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -16,6 +16,13 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get
+
+    - name: Install CocoaPods
+      run: sudo gem install cocoapods
+
+    - name: Install Pods
+      run: pod install
+      working-directory: ios
 
     - name: Build iOS
       run: flutter build ios --release --no-codesign
