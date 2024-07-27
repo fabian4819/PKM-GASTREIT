@@ -7,21 +7,26 @@ import 'dart:core'; // Import untuk Stopwatch
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 
-Future<List<String>> fetchCollectionNames() async {
+Future<List<Map<String, dynamic>>> fetchCollectionDetails() async {
   Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
-  List<String> collectionNames = [];
+  List<Map<String, dynamic>> collectionDetails = [];
   try {
     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('pH_data').get();
     for (var doc in snapshot.docs) {
-      collectionNames.add(doc.id);
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      if (doc.exists && data.containsKey('pin')) {
+        collectionDetails.add({'id': doc.id, 'pin': data['pin'].toString().trim()});
+      } else {
+        print('Document does not exist or missing pin field: ${doc.id}');
+      }
     }
   } catch (e) {
-    print(e);
+    print('Error fetching collections: $e');
   } finally {
     stopwatch.stop(); // Hentikan stopwatch
     print('Time taken to fetch collections: ${stopwatch.elapsedMilliseconds} ms');
   }
-  return collectionNames;
+  return collectionDetails;
 }
 
 class InputScreen extends StatefulWidget {
@@ -31,8 +36,8 @@ class InputScreen extends StatefulWidget {
 
 class _InputScreenState extends State<InputScreen> {
   int _selectedIndex = 1;
-  List<String> _allCollections = [];
-  List<String> _filteredCollections = [];
+  List<Map<String, dynamic>> _allCollections = [];
+  List<Map<String, dynamic>> _filteredCollections = [];
   TextEditingController _searchController = TextEditingController();
   String _computationTime = ''; // Variabel untuk menyimpan waktu komputasi
 
@@ -45,20 +50,21 @@ class _InputScreenState extends State<InputScreen> {
 
   Future<void> _loadCollections() async {
     Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
-    List<String> collections = await fetchCollectionNames();
+    List<Map<String, dynamic>> collections = await fetchCollectionDetails();
     setState(() {
       _allCollections = collections;
       _filteredCollections = collections;
       stopwatch.stop(); // Hentikan stopwatch
       _computationTime = 'Time taken to load collections: ${stopwatch.elapsedMilliseconds} ms'; // Simpan waktu komputasi
     });
+    print('Loaded collections: ${_allCollections.length}');
   }
 
   void _onSearchChanged() {
     String query = _searchController.text;
     setState(() {
       _filteredCollections = _allCollections
-          .where((collection) => collection.toLowerCase().contains(query.toLowerCase()))
+          .where((collection) => collection['id'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -92,18 +98,64 @@ class _InputScreenState extends State<InputScreen> {
     super.dispose();
   }
 
-  void _addCollection(String collectionName) {
+  Future<void> _addCollection(String collectionName) async {
     final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+    final collectionDetails = _allCollections.firstWhere((collection) => collection['id'] == collectionName);
+    
     if (!collectionProvider.selectedCollections.contains(collectionName)) {
-      collectionProvider.addCollection(collectionName);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$collectionName added to the list')),
-      );
+      String? inputPin = await _showPinDialog();
+      String firestorePin = collectionDetails['pin'].toString().trim(); // Pastikan tipe data adalah String dan hapus whitespace
+      inputPin = inputPin?.trim(); // Hapus whitespace dari input pengguna
+
+      print('Input PIN: $inputPin'); // Log input PIN
+      print('Firestore PIN: $firestorePin'); // Log Firestore PIN
+
+      if (inputPin == firestorePin) {
+        collectionProvider.addCollection(collectionName);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$collectionName added to the list')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Incorrect PIN')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$collectionName is already added')),
       );
     }
+  }
+
+  Future<String?> _showPinDialog() {
+    TextEditingController pinController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter PIN'),
+          content: TextField(
+            controller: pinController,
+            decoration: InputDecoration(hintText: 'PIN'),
+            obscureText: true,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(pinController.text);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -188,7 +240,7 @@ class _InputScreenState extends State<InputScreen> {
             child: ListView.builder(
               itemCount: _filteredCollections.length,
               itemBuilder: (BuildContext context, int index) {
-                String collectionName = _filteredCollections[index];
+                String collectionName = _filteredCollections[index]['id'];
                 bool isAdded = selectedCollections.contains(collectionName);
 
                 return Card(
