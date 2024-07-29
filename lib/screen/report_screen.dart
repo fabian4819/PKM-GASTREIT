@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pkm_gastreit/screen/chat_screen.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
 import 'dart:core';
+import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
+
+
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -116,6 +120,11 @@ class _ReportScreenState extends State<ReportScreen> {
         break;
       case 2:
         break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen()),
+        );
     }
   }
 
@@ -190,24 +199,11 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/home_light.png')),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/input_light.png')),
-            label: 'Input',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/hasil_black.png')),
-            label: 'Report',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
+
     );
   }
 }

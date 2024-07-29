@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pkm_gastreit/screen/chat_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,6 +10,7 @@ import 'package:pkm_gastreit/screen/profile_screen.dart'; // Import layar profil
 import 'package:pkm_gastreit/screen/sign_in_screen.dart'; // Import layar login
 import 'package:pkm_gastreit/screen/information_screen.dart'; // Import layar detail informasi
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
 
 void main() {
   runApp(MyApp());
@@ -52,6 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
           MaterialPageRoute(builder: (context) => ReportScreen()),
         );
         break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen()),
+        );
     }
   }
 
@@ -233,48 +240,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FutureBuilder<String>(
-                      future: _getUserFullName(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black));
-                        } else if (snapshot.hasData) {
-                          return Padding(
-                            padding: EdgeInsets.all(0.0),
-                            child: Text(
-                              'Hi, ${snapshot.data}!',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white),
-                            ),
-                          );
-                        } else {
-                          return Text('Hi, User!',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black));
-                        }
-                      },
-                    ),
-                    Text(
-                      'Pantau Kesehatan Lambungmu',
-                      style: GoogleFonts.ubuntu(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF041E60)),
-                    ),
-                  ],
-                ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FutureBuilder<String>(
+                        future: _getUserFullName(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black));
+                          } else if (snapshot.hasData) {
+                            return Padding(
+                              padding: EdgeInsets.all(0.0),
+                              child: Text(
+                                'Hi, ${snapshot.data}!',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white),
+                              ),
+                            );
+                          } else {
+                            return Text('Hi, User!',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black));
+                          }
+                        },
+                      ),
+                      Text(
+                        'Pantau Kesehatan Lambungmu',
+                        style: GoogleFonts.ubuntu(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF041E60)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -328,44 +336,44 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 40),
                     Align(
-  alignment: Alignment.center,
-  child: Container(
-    width: 380, // Set the width of the blue container to 350
-    padding: EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.blue, width: 2),
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Text(
-            'Informasi Menarik',
-            style: GoogleFonts.ubuntu(
-              color: Color(0xFF041E60),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Container(
-          height: 180, // Set the height for horizontal scroll area
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.zero,
-            children: getInfoItems()
-                .map((item) => InfoCard(item: item))
-                .toList(),
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-
+                      alignment: Alignment.center,
+                      child: Container(
+                        width:
+                            380, // Set the width of the blue container to 350
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blue, width: 2),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Text(
+                                'Informasi Menarik',
+                                style: GoogleFonts.ubuntu(
+                                  color: Color(0xFF041E60),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height:
+                                  180, // Set the height for horizontal scroll area
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.zero,
+                                children: getInfoItems()
+                                    .map((item) => InfoCard(item: item))
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -373,24 +381,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/home_black.png')),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/input_light.png')),
-            label: 'Input',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/hasil_light.png')),
-            label: 'Report',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
+
     );
   }
 }
@@ -477,82 +472,81 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InformationScreen(
-              imageUrl: item.imageUrl,
-              title: item.title,
-              description: item.description,
-            ),
-          ),
-        );
-      },
-      child: Container(
-  width: 150,
-  height: 200,
-  margin: EdgeInsets.symmetric(horizontal: 8),
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(12),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.15),
-        offset: Offset(0, 4),
-        blurRadius: 8,
-      ),
-    ],
-    gradient: LinearGradient(
-      colors: [Colors.white, Colors.grey[200]!],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  ),
-  child: SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-          child: Container(
-            height: 100,
-            width: 600,
-            child: Image.asset(
-              item.imageUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => InformationScreen(
+                imageUrl: item.imageUrl,
+                title: item.title,
+                description: item.description,
               ),
-              SizedBox(height: 4),
-              Text(
-                item.description,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+            ),
+          );
+        },
+        child: Container(
+          width: 150,
+          height: 200,
+          margin: EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                offset: Offset(0, 4),
+                blurRadius: 8,
               ),
             ],
+            gradient: LinearGradient(
+              colors: [Colors.white, Colors.grey[200]!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-      ],
-    ),
-  ),
-)
-    );
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  child: Container(
+                    height: 100,
+                    width: 600,
+                    child: Image.asset(
+                      item.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        item.description,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }

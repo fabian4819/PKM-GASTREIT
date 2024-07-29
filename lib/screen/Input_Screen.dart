@@ -6,6 +6,9 @@ import 'package:pkm_gastreit/providers/collection_provider.dart';
 import 'dart:core'; // Import untuk Stopwatch
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
+import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
+import 'package:pkm_gastreit/screen/chat_screen.dart'; // Import ChatScreen
+
 
 Future<List<Map<String, dynamic>>> fetchCollectionDetails() async {
   Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
@@ -89,6 +92,11 @@ class _InputScreenState extends State<InputScreen> {
           MaterialPageRoute(builder: (context) => ReportScreen()),
         );
         break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen()),
+        );
     }
   }
 
@@ -176,29 +184,11 @@ class _InputScreenState extends State<InputScreen> {
         leadingWidth: 100,
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/home_light.png')),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/input_black.png')),
-            label: 'Input',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('images/hasil_light.png')),
-            label: 'Report',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Color.fromRGBO(10, 40, 116, 1),
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
       ),
+
       body: Column(
         children: [
           Padding(

@@ -1,7 +1,7 @@
 name: pkm_gastreit
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 1.3.0
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -21,6 +21,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   http: ^1.2.2
   cached_network_image: ^3.3.1
+  package_info_plus: ^4.2.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +53,8 @@ flutter:
     - images/hasil_black.png
     - images/home_light.png
     - images/input_black.png
+    - images/chat_light.png
+    - images/chat_black.png
     - images/avatar1.png
     - images/avatar2.png
 
