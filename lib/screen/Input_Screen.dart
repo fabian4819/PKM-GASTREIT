@@ -1,36 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
-import 'dart:core'; // Import untuk Stopwatch
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
-import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
-import 'package:pkm_gastreit/screen/chat_screen.dart'; // Import ChatScreen
-
-
-Future<List<Map<String, dynamic>>> fetchCollectionDetails() async {
-  Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
-  List<Map<String, dynamic>> collectionDetails = [];
-  try {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('pH_data').get();
-    for (var doc in snapshot.docs) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      if (doc.exists && data.containsKey('pin')) {
-        collectionDetails.add({'id': doc.id, 'pin': data['pin'].toString().trim()});
-      } else {
-        print('Document does not exist or missing pin field: ${doc.id}');
-      }
-    }
-  } catch (e) {
-    print('Error fetching collections: $e');
-  } finally {
-    stopwatch.stop(); // Hentikan stopwatch
-    print('Time taken to fetch collections: ${stopwatch.elapsedMilliseconds} ms');
-  }
-  return collectionDetails;
-}
+import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart';
+import 'package:pkm_gastreit/screen/chat_screen.dart';
 
 class InputScreen extends StatefulWidget {
   @override
@@ -53,23 +30,83 @@ class _InputScreenState extends State<InputScreen> {
 
   Future<void> _loadCollections() async {
     Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
-    List<Map<String, dynamic>> collections = await fetchCollectionDetails();
+    List<Map<String, dynamic>> collections = await _fetchCollectionDetails();
     setState(() {
       _allCollections = collections;
       _filteredCollections = collections;
       stopwatch.stop(); // Hentikan stopwatch
-      _computationTime = 'Time taken to load collections: ${stopwatch.elapsedMilliseconds} ms'; // Simpan waktu komputasi
+      _computationTime =
+          'Time taken to load collections: ${stopwatch.elapsedMilliseconds} ms'; // Simpan waktu komputasi
     });
     print('Loaded collections: ${_allCollections.length}');
+    _loadSelectedCollections(); // Load selected collections
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchCollectionDetails() async {
+    Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
+    List<Map<String, dynamic>> collectionDetails = [];
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('pH_data').get();
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        if (doc.exists && data.containsKey('pin')) {
+          collectionDetails
+              .add({'id': doc.id, 'pin': data['pin'].toString().trim()});
+        } else {
+          print('Document does not exist or missing pin field: ${doc.id}');
+        }
+      }
+    } catch (e) {
+      print('Error fetching collections: $e');
+    } finally {
+      stopwatch.stop(); // Hentikan stopwatch
+      print(
+          'Time taken to fetch collections: ${stopwatch.elapsedMilliseconds} ms');
+    }
+    return collectionDetails;
+  }
+
+  Future<void> _loadSelectedCollections() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (doc.exists && doc.data() != null) {
+        List<String> selectedCollections = List<String>.from((doc.data() as Map<String, dynamic>)['selectedCollections'] ?? []);
+        Provider.of<CollectionProvider>(context, listen: false).replaceCollections(selectedCollections);
+        // Optionally, update the UI if necessary
+        setState(() {
+          // Any additional UI updates if needed
+        });
+      }
+    }
   }
 
   void _onSearchChanged() {
     String query = _searchController.text;
     setState(() {
       _filteredCollections = _allCollections
-          .where((collection) => collection['id'].toLowerCase().contains(query.toLowerCase()))
+          .where((collection) =>
+              collection['id'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  Future<void> _saveSelectedCollectionsToFirestore() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      final collectionProvider =
+          Provider.of<CollectionProvider>(context, listen: false);
+
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'selectedCollections': collectionProvider.selectedCollections,
+      }).catchError((error) async {
+        // Jika dokumen belum ada, buat dokumen baru
+        await FirebaseFirestore.instance.collection('users').doc(userId).set({
+          'selectedCollections': collectionProvider.selectedCollections,
+        }, SetOptions(merge: true));
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -107,12 +144,16 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   Future<void> _addCollection(String collectionName) async {
-    final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
-    final collectionDetails = _allCollections.firstWhere((collection) => collection['id'] == collectionName);
-    
+    final collectionProvider =
+        Provider.of<CollectionProvider>(context, listen: false);
+    final collectionDetails = _allCollections
+        .firstWhere((collection) => collection['id'] == collectionName);
+
     if (!collectionProvider.selectedCollections.contains(collectionName)) {
       String? inputPin = await _showPinDialog();
-      String firestorePin = collectionDetails['pin'].toString().trim(); // Pastikan tipe data adalah String dan hapus whitespace
+      String firestorePin = collectionDetails['pin']
+          .toString()
+          .trim(); // Pastikan tipe data adalah String dan hapus whitespace
       inputPin = inputPin?.trim(); // Hapus whitespace dari input pengguna
 
       print('Input PIN: $inputPin'); // Log input PIN
@@ -120,6 +161,7 @@ class _InputScreenState extends State<InputScreen> {
 
       if (inputPin == firestorePin) {
         collectionProvider.addCollection(collectionName);
+        await _saveSelectedCollectionsToFirestore(); // Simpan ke Firestore setelah menambahkan koleksi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$collectionName added to the list')),
         );
@@ -177,18 +219,25 @@ class _InputScreenState extends State<InputScreen> {
         title: Text(
           'Input',
           style: GoogleFonts.ubuntu(
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
-              color: Colors.white),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         leadingWidth: 100,
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                _loadCollections(); // Memuat ulang koleksi
+              });
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-
       body: Column(
         children: [
           Padding(
@@ -210,7 +259,8 @@ class _InputScreenState extends State<InputScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search, color: Color.fromRGBO(10, 40, 116, 1)),
+                  prefixIcon:
+                      Icon(Icons.search, color: Color.fromRGBO(10, 40, 116, 1)),
                   hintText: 'Search Patient Name...',
                   border: InputBorder.none,
                 ),
@@ -234,7 +284,8 @@ class _InputScreenState extends State<InputScreen> {
                 bool isAdded = selectedCollections.contains(collectionName);
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   elevation: 3,
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
@@ -245,7 +296,8 @@ class _InputScreenState extends State<InputScreen> {
                     trailing: isAdded
                         ? Icon(Icons.check, color: Colors.green)
                         : IconButton(
-                            icon: Icon(Icons.add, color: Color.fromRGBO(10, 40, 116, 1)),
+                            icon: Icon(Icons.add,
+                                color: Color.fromRGBO(10, 40, 116, 1)),
                             onPressed: () => _addCollection(collectionName),
                           ),
                     onTap: () {

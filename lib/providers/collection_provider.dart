@@ -18,4 +18,16 @@ class CollectionProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Method to replace all selected collections
+  void replaceCollections(List<String> collections) {
+    _selectedCollections = collections;
+    notifyListeners();
+  }
+
+  // Method to clear all selected collections
+  void clearCollections() {
+    _selectedCollections.clear();
+    notifyListeners();
+  }
 }

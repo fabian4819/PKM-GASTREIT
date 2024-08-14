@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
 import 'package:pkm_gastreit/screen/sign_in_screen.dart';
+import 'package:pkm_gastreit/providers/collection_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -35,16 +37,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     };
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SignInScreen(),
-      ),
-      (Route<dynamic> route) => false,
-    );
-  }
+  Future<void> _signOut() async {
+  final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+  collectionProvider.clearCollections(); // Clear the collections before signing out
+
+  await FirebaseAuth.instance.signOut();
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SignInScreen(), // Navigate back to the sign-in screen
+    ),
+    (Route<dynamic> route) => false, // Remove all previous routes
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => _signOut(context),
+                    onPressed: () => _signOut,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,

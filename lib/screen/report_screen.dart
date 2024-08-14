@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pkm_gastreit/screen/chat_screen.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
-import 'dart:core';
 import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
-
-
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -26,7 +24,8 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchReportData();
+    _loadSelectedCollections(); // Load selected collections
+    _fetchReportData(); // Load report data
   }
 
   Future<void> _fetchReportData() async {
@@ -39,7 +38,10 @@ class _ReportScreenState extends State<ReportScreen> {
 
     for (String collectionName in selectedCollections) {
       try {
-        DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('pH_data').doc(collectionName).get();
+        DocumentSnapshot snapshot = await FirebaseFirestore.instance
+            .collection('pH_data')
+            .doc(collectionName)
+            .get();
         if (snapshot.exists) {
           tempDataList.add(snapshot.data() as Map<String, dynamic>);
           tempDocumentIds.add(snapshot.id);
@@ -56,6 +58,21 @@ class _ReportScreenState extends State<ReportScreen> {
       computationTime = 'Time taken to fetch data: ${stopwatch.elapsedMilliseconds} ms';
       isLoading = false;
     });
+  }
+
+  Future<void> _loadSelectedCollections() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      try {
+        DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        if (doc.exists && doc.data() != null) {
+          List<String> selectedCollections = List<String>.from((doc.data() as Map<String, dynamic>)['selectedCollections'] ?? []);
+          Provider.of<CollectionProvider>(context, listen: false).replaceCollections(selectedCollections);
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   void _deleteCollection(String collectionName) {
@@ -128,6 +145,13 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  void _refreshData() {
+    setState(() {
+      isLoading = true;
+    });
+    _fetchReportData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,13 +159,15 @@ class _ReportScreenState extends State<ReportScreen> {
         automaticallyImplyLeading: false,
         title: Text(
           'Report',
-          style: GoogleFonts.ubuntu(
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
-              color: Colors.white),
+          style: GoogleFonts.ubuntu(fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
-        leadingWidth: 100,
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: _refreshData,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -180,8 +206,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                         if (reportData['mean_ph'] != null)
                                           Text(
                                             'Mean pH: ${reportData['mean_ph']}',
-                                            style: GoogleFonts.ubuntu(
-                                                fontSize: 20, fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.ubuntu(fontSize: 20, fontWeight: FontWeight.w600),
                                           ),
                                       ],
                                     ),
@@ -203,7 +228,6 @@ class _ReportScreenState extends State<ReportScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-
     );
   }
 }
