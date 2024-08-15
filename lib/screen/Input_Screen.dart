@@ -7,7 +7,9 @@ import 'package:pkm_gastreit/providers/collection_provider.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart';
+import 'package:pkm_gastreit/screen/user_list_screen.dart';
 import 'package:pkm_gastreit/screen/chat_screen.dart';
+
 
 class InputScreen extends StatefulWidget {
   @override
@@ -70,10 +72,15 @@ class _InputScreenState extends State<InputScreen> {
   Future<void> _loadSelectedCollections() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
       if (doc.exists && doc.data() != null) {
-        List<String> selectedCollections = List<String>.from((doc.data() as Map<String, dynamic>)['selectedCollections'] ?? []);
-        Provider.of<CollectionProvider>(context, listen: false).replaceCollections(selectedCollections);
+        List<String> selectedCollections = List<String>.from(
+            (doc.data() as Map<String, dynamic>)['selectedCollections'] ?? []);
+        Provider.of<CollectionProvider>(context, listen: false)
+            .replaceCollections(selectedCollections);
         // Optionally, update the UI if necessary
         setState(() {
           // Any additional UI updates if needed
@@ -132,7 +139,7 @@ class _InputScreenState extends State<InputScreen> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatScreen()),
+          MaterialPageRoute(builder: (context) => UserListScreen()),
         );
     }
   }

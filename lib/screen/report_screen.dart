@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pkm_gastreit/screen/user_list_screen.dart';
 import 'package:pkm_gastreit/screen/chat_screen.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
@@ -30,7 +31,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _fetchReportData() async {
     Stopwatch stopwatch = Stopwatch()..start();
-    final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+    final collectionProvider =
+        Provider.of<CollectionProvider>(context, listen: false);
     List<String> selectedCollections = collectionProvider.selectedCollections;
 
     List<Map<String, dynamic>> tempDataList = [];
@@ -55,7 +57,8 @@ class _ReportScreenState extends State<ReportScreen> {
     setState(() {
       reportDataList = tempDataList;
       documentIds = tempDocumentIds;
-      computationTime = 'Time taken to fetch data: ${stopwatch.elapsedMilliseconds} ms';
+      computationTime =
+          'Time taken to fetch data: ${stopwatch.elapsedMilliseconds} ms';
       isLoading = false;
     });
   }
@@ -64,10 +67,16 @@ class _ReportScreenState extends State<ReportScreen> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
       try {
-        DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
         if (doc.exists && doc.data() != null) {
-          List<String> selectedCollections = List<String>.from((doc.data() as Map<String, dynamic>)['selectedCollections'] ?? []);
-          Provider.of<CollectionProvider>(context, listen: false).replaceCollections(selectedCollections);
+          List<String> selectedCollections = List<String>.from(
+              (doc.data() as Map<String, dynamic>)['selectedCollections'] ??
+                  []);
+          Provider.of<CollectionProvider>(context, listen: false)
+              .replaceCollections(selectedCollections);
         }
       } catch (e) {
         print(e);
@@ -76,7 +85,8 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   void _deleteCollection(String collectionName) {
-    final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
+    final collectionProvider =
+        Provider.of<CollectionProvider>(context, listen: false);
     collectionProvider.removeCollection(collectionName);
 
     setState(() {
@@ -87,7 +97,8 @@ class _ReportScreenState extends State<ReportScreen> {
       }
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Collection removed from the list')));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Collection removed from the list')));
   }
 
   Future<void> _showDeleteConfirmationDialog(String collectionName) async {
@@ -96,7 +107,8 @@ class _ReportScreenState extends State<ReportScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to remove this collection from the list?'),
+          content: Text(
+              'Are you sure you want to remove this collection from the list?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -140,7 +152,7 @@ class _ReportScreenState extends State<ReportScreen> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatScreen()),
+          MaterialPageRoute(builder: (context) => UserListScreen()),
         );
     }
   }
@@ -159,7 +171,8 @@ class _ReportScreenState extends State<ReportScreen> {
         automaticallyImplyLeading: false,
         title: Text(
           'Report',
-          style: GoogleFonts.ubuntu(fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+          style: GoogleFonts.ubuntu(
+              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
         actions: [
@@ -183,7 +196,10 @@ class _ReportScreenState extends State<ReportScreen> {
             child: isLoading
                 ? Center(child: CircularProgressIndicator())
                 : reportDataList.isEmpty
-                    ? Center(child: Text('No data available', style: GoogleFonts.ubuntu(fontSize: 18, color: Colors.black54)))
+                    ? Center(
+                        child: Text('No data available',
+                            style: GoogleFonts.ubuntu(
+                                fontSize: 18, color: Colors.black54)))
                     : ListView.builder(
                         itemCount: reportDataList.length,
                         itemBuilder: (context, index) {
@@ -194,26 +210,32 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         if (reportData['plot_url'] != null)
                                           Image.network(reportData['plot_url']),
                                         if (reportData['mean_ph'] != null)
                                           Text(
                                             'Mean pH: ${reportData['mean_ph']}',
-                                            style: GoogleFonts.ubuntu(fontSize: 20, fontWeight: FontWeight.w600),
+                                            style: GoogleFonts.ubuntu(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w600),
                                           ),
                                       ],
                                     ),
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () => _showDeleteConfirmationDialog(documentId),
+                                    onPressed: () =>
+                                        _showDeleteConfirmationDialog(
+                                            documentId),
                                   ),
                                 ],
                               ),

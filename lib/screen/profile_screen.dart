@@ -21,6 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'fullName': 'N/A',
         'phoneNumber': 'N/A',
         'avatarUrl': '', // Default or empty avatar URL
+        'gender': 'N/A', // Default gender
       };
     }
 
@@ -34,23 +35,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'fullName': data['fullName'] ?? 'N/A',
       'phoneNumber': data['phoneNumber'] ?? 'N/A',
       'avatarUrl': user.photoURL ?? '', // Fetch avatar URL from FirebaseAuth
+      'gender': data['gender'] ?? 'N/A', // Fetch gender from Firestore
     };
   }
 
   Future<void> _signOut() async {
-  final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
-  collectionProvider.clearCollections(); // Clear the collections before signing out
+    final collectionProvider =
+        Provider.of<CollectionProvider>(context, listen: false);
+    collectionProvider
+        .clearCollections(); // Clear the collections before signing out
 
-  await FirebaseAuth.instance.signOut();
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(
-      builder: (context) => SignInScreen(), // Navigate back to the sign-in screen
-    ),
-    (Route<dynamic> route) => false, // Remove all previous routes
-  );
-}
-
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            SignInScreen(), // Navigate back to the sign-in screen
+      ),
+      (Route<dynamic> route) => false, // Remove all previous routes
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +102,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
-              final userData = snapshot.data ?? {'fullName': 'N/A', 'phoneNumber': 'N/A', 'avatarUrl': ''};
+              final userData = snapshot.data ??
+                  {
+                    'fullName': 'N/A',
+                    'phoneNumber': 'N/A',
+                    'avatarUrl': '',
+                    'gender': 'N/A',
+                  };
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,15 +120,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundImage: userData['avatarUrl']!.isNotEmpty
                           ? (userData['avatarUrl']!.startsWith('http')
                               ? NetworkImage(userData['avatarUrl']!)
-                              : AssetImage(userData['avatarUrl']!) as ImageProvider)
-                          : null,
-                      child: userData['avatarUrl']!.isEmpty
-                          ? Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.white,
-                            )
-                          : null,
+                              : AssetImage(userData['avatarUrl']!)
+                                  as ImageProvider)
+                          : AssetImage(
+                              userData['gender'] == 'Male'
+                                  ? 'images/avatar1.png' // Gambar default untuk laki-laki
+                                  : 'images/avatar2.png', // Gambar default untuk perempuan
+                            ) as ImageProvider,
                     ),
                   ),
                   SizedBox(height: 20),
@@ -153,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => _signOut,
+                    onPressed: () => _signOut(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,

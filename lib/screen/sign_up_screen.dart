@@ -29,11 +29,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
   bool _isLoading = false;
+
+  String? _gender;
 
   @override
   void initState() {
@@ -49,7 +52,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   try {
     // Coba mendaftar pengguna baru
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    UserCredential userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
     );
@@ -61,6 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'fullName': _nameController.text,
         'phoneNumber': _phoneController.text,
         'email': user.email,
+        'gender': _gender, // Menambahkan data jenis kelamin
       });
 
       // Tampilkan dialog setelah pendaftaran berhasil
@@ -94,7 +99,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Email Sudah Terdaftar'),
-            content: Text('Email yang Anda masukkan sudah digunakan oleh akun lain.'),
+            content: Text(
+                'Email yang Anda masukkan sudah digunakan oleh akun lain.'),
             actions: <Widget>[
               TextButton(
                 child: Text('OK'),
@@ -132,7 +138,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 }
-
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +190,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             controller: _nameController,
                             decoration: InputDecoration(
                               labelText: 'Nama Lengkap',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                                 borderSide: BorderSide(
@@ -206,7 +216,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 10),
                           TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.number,
@@ -215,6 +225,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ],
                             decoration: InputDecoration(
                               labelText: 'Nomor Telepon',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                                 borderSide: BorderSide(
@@ -236,12 +251,75 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'Jenis Kelamin',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide: BorderSide(
+                                  color: Color.fromRGBO(217, 217, 217, 1),
+                                  width: 2.0,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Color.fromRGBO(217, 217, 217, 1),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 12.0,
+                                horizontal: 16.0,
+                              ),
+                            ),
+                            value: _gender,
+                            items: [
+                              DropdownMenuItem<String>(
+                                value: 'Male',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.male, color: Colors.blue),
+                                    SizedBox(width: 8),
+                                    Text('Laki-laki'),
+                                  ],
+                                ),
+                              ),
+                              DropdownMenuItem<String>(
+                                value: 'Female',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.female, color: Colors.pink),
+                                    SizedBox(width: 8),
+                                    Text('Perempuan'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Jenis kelamin harus dipilih';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 10),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                                 borderSide: BorderSide(
@@ -260,17 +338,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Email harus diisi';
                               }
-                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                  .hasMatch(value)) {
                                 return 'Masukkan email yang valid';
                               }
                               return null;
                             },
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 10),
                           TextFormField(
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Password',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                                 borderSide: BorderSide(
@@ -305,11 +389,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 10),
                           TextFormField(
                             controller: _confirmPasswordController,
                             decoration: InputDecoration(
-                              labelText: 'Confirm Password',
+                              labelText: 'Konfirmasi Password',
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromRGBO(10, 40, 116, 1),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                                 borderSide: BorderSide(
@@ -331,7 +420,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _confirmPasswordVisible = !_confirmPasswordVisible;
+                                    _confirmPasswordVisible =
+                                        !_confirmPasswordVisible;
                                   });
                                 },
                               ),
@@ -347,28 +437,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 40),
+                          SizedBox(height: 20),
                           _isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    _signUp();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF0A2874),
-                                  minimumSize: Size(double.infinity, 55),
-                                ),
-                                child: Text(
-                                  'REGISTER',
-                                  style: GoogleFonts.libreFranklin(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                              ? Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      _signUp();
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF0A2874),
+                                    minimumSize: Size(double.infinity, 55),
+                                  ),
+                                  child: Text(
+                                    'REGISTER',
+                                    style: GoogleFonts.libreFranklin(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
                           SizedBox(height: 40),
                           Text(
                             'GASTREIT',

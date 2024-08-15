@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pkm_gastreit/screen/chat_screen.dart';
+import 'package:pkm_gastreit/screen/user_list_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -59,29 +59,29 @@ class _HomeScreenState extends State<HomeScreen> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatScreen()),
+          MaterialPageRoute(builder: (context) => UserListScreen()),
         );
     }
   }
 
   Future<String> _getUserFullName() async {
-  final User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      final data = userDoc.data();
-      // Pastikan data['fullName'] ada dan bukan null
-      return data?['fullName'] ?? user.displayName ?? 'User';
-    } catch (e) {
-      print('Error fetching user data: $e');
-      return 'User'; // Default value in case of error
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        final data = userDoc.data();
+        // Pastikan data['fullName'] ada dan bukan null
+        return data?['fullName'] ?? user.displayName ?? 'User';
+      } catch (e) {
+        print('Error fetching user data: $e');
+        return 'User'; // Default value in case of error
+      }
     }
+    return 'User';
   }
-  return 'User';
-}
 
   // String _getNameFromEmail(String email) {
   // final namePart = email.split('@').first;
@@ -121,20 +121,21 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
 
   Future<void> _signOut() async {
-  final collectionProvider = Provider.of<CollectionProvider>(context, listen: false);
-  collectionProvider.clearCollections(); // Clear the collections before signing out
+    final collectionProvider =
+        Provider.of<CollectionProvider>(context, listen: false);
+    collectionProvider
+        .clearCollections(); // Clear the collections before signing out
 
-  await FirebaseAuth.instance.signOut();
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(
-      builder: (context) => SignInScreen(), // Navigate back to the sign-in screen
-    ),
-    (Route<dynamic> route) => false, // Remove all previous routes
-  );
-}
-
-
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            SignInScreen(), // Navigate back to the sign-in screen
+      ),
+      (Route<dynamic> route) => false, // Remove all previous routes
+    );
+  }
 
   // Future<void> _signOut() async {
   //   await FirebaseAuth.instance.signOut();
@@ -242,63 +243,64 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Column(
-      children: [
-        ClipPath(
-          clipper: InwardAppBarClipper(),
-          child: Container(
-            height: 220,
-            color: Colors.blue,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16.0, 30.0, 16.0, 0.0),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FutureBuilder<String>(
-                      future: _getUserFullName(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black));
-                        } else if (snapshot.hasData) {
-                          return Padding(
-                            padding: EdgeInsets.all(0.0),
-                            child: Text(
-                              'Hi, ${snapshot.data}!',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white),
-                            ),
-                          );
-                        } else {
-                          return Text('Hi, User!',
-                              style: GoogleFonts.ubuntu(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black));
-                        }
-                      },
-                    ),
-                    Text(
-                      'Pantau Kesehatan Lambungmu',
-                      style: GoogleFonts.ubuntu(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF041E60)),
-                    ),
-                  ],
+        children: [
+          ClipPath(
+            clipper: InwardAppBarClipper(),
+            child: Container(
+              height: 220,
+              color: Colors.blue,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 30.0, 16.0, 0.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FutureBuilder<String>(
+                        future: _getUserFullName(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black));
+                          } else if (snapshot.hasData) {
+                            return Padding(
+                              padding: EdgeInsets.all(0.0),
+                              child: Text(
+                                'Hi, ${snapshot.data}!',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white),
+                              ),
+                            );
+                          } else {
+                            return Text('Hi, User!',
+                                style: GoogleFonts.ubuntu(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black));
+                          }
+                        },
+                      ),
+                      Text(
+                        'Pantau Kesehatan Lambungmu',
+                        style: GoogleFonts.ubuntu(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF041E60)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
           SizedBox(height: 0),
           Expanded(
             child: SingleChildScrollView(
@@ -397,7 +399,6 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-
     );
   }
 }
