@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:pkm_gastreit/screen/landing_screen.dart';
+import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,13 +21,27 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _versionFuture = _getVersion();
+    _checkAuthAndNavigate(); // Cek status autentikasi dan navigasi
+  }
 
-    Future.delayed(const Duration(seconds: 3), () {
+  Future<void> _checkAuthAndNavigate() async {
+    await Future.delayed(const Duration(seconds: 3)); // Durasi Splash Screen
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Jika user sudah login, arahkan ke HomeScreen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LandingScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
-    });
+    } else {
+      // Jika user belum login, arahkan ke LandingScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>  LandingScreen()),
+      );
+    }
   }
 
   Future<String> _getVersion() async {

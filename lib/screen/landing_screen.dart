@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'package:pkm_gastreit/screen/sign_in_screen.dart'; // Import halaman Sign In
 import 'package:pkm_gastreit/screen/sign_up_screen.dart'; // Import halaman Sign Up
+import 'package:pkm_gastreit/screen/role_selection_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});

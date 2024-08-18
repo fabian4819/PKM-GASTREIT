@@ -1,8 +1,7 @@
-// screen/user_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth for current user
-import 'package:pkm_gastreit/screen/chat_screen.dart'; // Import ChatScreen
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pkm_gastreit/screen/chat_screen.dart';
 import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
@@ -16,6 +15,26 @@ class UserListScreen extends StatefulWidget {
 
 class _UserListScreenState extends State<UserListScreen> {
   int _selectedIndex = 3;
+  String? currentUserRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserRole();
+  }
+
+  Future<void> _getCurrentUserRole() async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId != null) {
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .get();
+      setState(() {
+        currentUserRole = currentUserDoc.get('role') ?? '';
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -55,23 +74,40 @@ class _UserListScreenState extends State<UserListScreen> {
     // Get the current user ID
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
+    if (currentUserRole == null) {
+      // Show loading indicator until the role is fetched
+      return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Chat',
+            style: GoogleFonts.ubuntu(
+                fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+          ),
+          backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
           'Chat',
           style: GoogleFonts.ubuntu(
-            fontSize: 25, 
-            fontWeight: FontWeight.w600, 
-            color: Colors.white
-          ),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .where(FieldPath.documentId, isNotEqualTo: currentUserId) // Exclude current user
+            .where(FieldPath.documentId, isNotEqualTo: currentUserId)
+            .where('role',
+                isEqualTo: currentUserRole == 'Doctor'
+                    ? 'Patient'
+                    : 'Doctor') // Filter based on the current user's role
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -85,12 +121,12 @@ class _UserListScreenState extends State<UserListScreen> {
             itemCount: users.length,
             itemBuilder: (context, index) {
               final userDoc = users[index];
-              final userName = userDoc.get('fullName') ?? 'Unknown';
+              final userData = userDoc.data() as Map<String, dynamic>;
 
-              // Get the gender and avatar URL, handle missing fields
-              final userData = userDoc.data() as Map<String, dynamic>?; 
-              final userGender = userData?['gender'] ?? 'unknown';
-              final userAvatar = userData?['avatarUrl'] ?? '';
+              final userName = userData['fullName'] ?? 'Unknown';
+              final userGender = userData['gender'] ?? 'unknown';
+              final userAvatar = userData['avatarUrl'] ?? '';
+              final userRole = userData['role'] ?? 'Unknown';
 
               // Determine the default avatar based on gender
               final defaultAvatar = userGender.toLowerCase() == 'female'
@@ -108,7 +144,8 @@ class _UserListScreenState extends State<UserListScreen> {
                         ? (userAvatar.startsWith('http')
                             ? NetworkImage(userAvatar)
                             : AssetImage(userAvatar) as ImageProvider)
-                        : AssetImage(defaultAvatar) as ImageProvider, // Use default avatar
+                        : AssetImage(defaultAvatar)
+                            as ImageProvider, // Use default avatar
                   ),
                   title: Text(
                     userName,
@@ -118,7 +155,8 @@ class _UserListScreenState extends State<UserListScreen> {
                     ),
                   ),
                   subtitle: Text('Tap to start chat'),
-                  trailing: Icon(Icons.message, color: Color.fromRGBO(10, 40, 116, 1)),
+                  trailing: Icon(Icons.message,
+                      color: Color.fromRGBO(10, 40, 116, 1)),
                   onTap: () {
                     Navigator.push(
                       context,

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
+// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,13 +6,14 @@ import 'package:pkm_gastreit/screen/user_list_screen.dart';
 import 'package:pkm_gastreit/screen/input_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pkm_gastreit/screen/profile_screen.dart'; // Import layar profil
-import 'package:pkm_gastreit/screen/sign_in_screen.dart'; // Import layar login
-import 'package:pkm_gastreit/screen/information_screen.dart'; // Import layar detail informasi
+import 'package:pkm_gastreit/screen/profile_screen.dart';
+import 'package:pkm_gastreit/screen/landing_screen.dart';
+import 'package:pkm_gastreit/screen/information_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart'; // Import widget bottom navigation bar
-import 'package:pkm_gastreit/providers/collection_provider.dart'; // Import provider koleksi
+import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart';
+import 'package:pkm_gastreit/providers/collection_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart'; // Import untuk SystemNavigator.pop()
 
 void main() {
   runApp(MyApp());
@@ -64,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  
   Future<String> _getUserFullName() async {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -131,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            SignInScreen(), // Navigate back to the sign-in screen
+            LandingScreen(), // Navigate back to the sign-in screen
       ),
       (Route<dynamic> route) => false, // Remove all previous routes
     );
@@ -206,198 +208,228 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Home',
-          style: GoogleFonts.ubuntu(
-              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+    return WillPopScope(
+      onWillPop: () async {
+        SystemNavigator.pop(); // This will close the app
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Home',
+            style: GoogleFonts.ubuntu(
+                fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+          ),
+          backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.account_circle, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.logout, color: Colors.white),
+              onPressed: _signOut,
+            ),
+          ],
         ),
-        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh,
-                color: Colors.white), // Reload icon with white color
-            onPressed: () {
-              setState(() {
-                // Trigger a rebuild of the screen
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.account_circle,
-                color: Colors.white), // Profile icon with white color
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.logout,
-                color: Colors.white), // Logout icon with white color
-            onPressed: _signOut,
-          ),
-        ],
-      ),
-      body: Column(
+        body: Column(
+          children: [
+            ClipPath(
+              clipper: InwardAppBarClipper(),
+              child: Container(
+                height: 220,
+                color: Colors.blue,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0.0),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FutureBuilder<String>(
+                          future: _getUserFullName(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}',
+                                  style: GoogleFonts.ubuntu(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black));
+                            } else if (snapshot.hasData) {
+                              return Padding(
+                                padding: EdgeInsets.all(0.0),
+                                child: Text(
+                                  'Hi, ${snapshot.data}!',
+                                  style: GoogleFonts.ubuntu(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                              );
+                            } else {
+                              return Text('Hi, User!',
+                                  style: GoogleFonts.ubuntu(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black));
+                            }
+                          },
+                        ),
+                        Text(
+                          'Pantau Kesehatan Lambungmu',
+                          style: GoogleFonts.ubuntu(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF041E60)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+  child: SingleChildScrollView(
+    child: Padding(
+      padding: EdgeInsets.all(0.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipPath(
-            clipper: InwardAppBarClipper(),
-            child: Container(
-              height: 220,
-              color: Colors.blue,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 30.0, 16.0, 0.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FutureBuilder<String>(
-                        future: _getUserFullName(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}',
-                                style: GoogleFonts.ubuntu(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black));
-                          } else if (snapshot.hasData) {
-                            return Padding(
-                              padding: EdgeInsets.all(0.0),
-                              child: Text(
-                                'Hi, ${snapshot.data}!',
-                                style: GoogleFonts.ubuntu(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
-                            );
-                          } else {
-                            return Text('Hi, User!',
-                                style: GoogleFonts.ubuntu(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black));
-                          }
-                        },
+          Padding(
+  padding: EdgeInsets.all(0.0), // Hilangkan padding di sekitar tombol
+  child: Align(
+    alignment: Alignment.topCenter,
+    child: OutlinedButton.icon(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => UserListScreen()),
+        );
+      },
+      icon: Icon(Icons.message_rounded, color: Colors.blue),
+      label: Text(
+        'Konsultasi Dokter',
+        style: GoogleFonts.ubuntu(
+          fontSize: 18, // Ukuran font
+          fontWeight: FontWeight.bold, // Ketebalan font
+          color: Colors.blue, // Warna font
+        ),
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.blue,
+        backgroundColor: Colors.blue[100], // Tombol akan memiliki latar belakang putih
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        side: BorderSide(color: Colors.blue, width: 2), // Border berwarna biru
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Sesuaikan padding
+        minimumSize: Size(370, 50), // Atur lebar dan tinggi tombol
+      ),
+    ),
+  ),
+),
+
+
+
+
+          SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          CategoryButton(
+                            image: Image.asset(
+                              "images/Icon-InputCitra.png",
+                              width: 130,
+                              height: 80,
+                              fit: BoxFit.contain,
+                            ),
+                            label: 'Input Citra',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InputScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          CategoryButton(
+                            image: Image.asset(
+                              "images/Icon-HasilCitra.png",
+                              width: 130,
+                              height: 80,
+                              fit: BoxFit.contain,
+                            ),
+                            label: 'Hasil Citra',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReportScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Pantau Kesehatan Lambungmu',
-                        style: GoogleFonts.ubuntu(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF041E60)),
+                      SizedBox(height: 30),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 380,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue, width: 2),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Text(
+                                  'Informasi Menarik',
+                                  style: GoogleFonts.ubuntu(
+                                    color: Color(0xFF041E60),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: 150,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: EdgeInsets.zero,
+                                  children: getInfoItems()
+                                      .map((item) => InfoCard(item: item))
+                                      .toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-          SizedBox(height: 0),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(0.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        CategoryButton(
-                          image: Image.asset(
-                            "images/Icon-InputCitra.png",
-                            width: 130,
-                            height: 100,
-                            fit: BoxFit.contain,
-                          ),
-                          label: 'Input Citra',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => InputScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        CategoryButton(
-                          image: Image.asset(
-                            "images/Icon-HasilCitra.png",
-                            width: 130,
-                            height: 100,
-                            fit: BoxFit.contain,
-                          ),
-                          label: 'Hasil Citra',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReportScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 40),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        width:
-                            380, // Set the width of the blue container to 350
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 2),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Text(
-                                'Informasi Menarik',
-                                style: GoogleFonts.ubuntu(
-                                  color: Color(0xFF041E60),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height:
-                                  180, // Set the height for horizontal scroll area
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                padding: EdgeInsets.zero,
-                                children: getInfoItems()
-                                    .map((item) => InfoCard(item: item))
-                                    .toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
@@ -441,6 +473,7 @@ class CategoryButton extends StatelessWidget {
   }
 }
 
+
 class InwardAppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -464,6 +497,7 @@ class InwardAppBarClipper extends CustomClipper<Path> {
     return false;
   }
 }
+
 
 class InfoItem {
   final String imageUrl;

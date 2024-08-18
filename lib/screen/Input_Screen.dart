@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +10,6 @@ import 'package:pkm_gastreit/screen/home_screen.dart';
 import 'package:pkm_gastreit/screen/report_screen.dart';
 import 'package:pkm_gastreit/widgets/bottom_navigation_bar.dart';
 import 'package:pkm_gastreit/screen/user_list_screen.dart';
-import 'package:pkm_gastreit/screen/chat_screen.dart';
 
 
 class InputScreen extends StatefulWidget {

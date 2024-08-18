@@ -35,8 +35,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
   bool _isLoading = false;
-
   String? _gender;
+  String? _role; // Menambahkan pilihan role
 
   @override
   void initState() {
@@ -46,98 +46,99 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
-  setState(() {
-    _isLoading = true;
-  });
-
-  try {
-    // Coba mendaftar pengguna baru
-    UserCredential userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-
-    User? user = userCredential.user;
-    if (user != null) {
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      await firestore.collection('users').doc(user.uid).set({
-        'fullName': _nameController.text,
-        'phoneNumber': _phoneController.text,
-        'email': user.email,
-        'gender': _gender, // Menambahkan data jenis kelamin
-      });
-
-      // Tampilkan dialog setelah pendaftaran berhasil
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Berhasil'),
-            content: Text('Pendaftaran berhasil! Silakan login.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignInScreen()),
-                  );
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  } on FirebaseAuthException catch (e) {
-    // Tangani kesalahan jika email sudah digunakan
-    if (e.code == 'email-already-in-use') {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Email Sudah Terdaftar'),
-            content: Text(
-                'Email yang Anda masukkan sudah digunakan oleh akun lain.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      // Tangani kesalahan lainnya
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text(e.message ?? 'Terjadi kesalahan'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  } finally {
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
     });
+
+    try {
+      // Coba mendaftar pengguna baru
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      User? user = userCredential.user;
+      if (user != null) {
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        await firestore.collection('users').doc(user.uid).set({
+          'fullName': _nameController.text,
+          'phoneNumber': _phoneController.text,
+          'email': user.email,
+          'gender': _gender,
+          'role': _role, // Menambahkan data role
+        });
+
+        // Tampilkan dialog setelah pendaftaran berhasil
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Berhasil'),
+              content: Text('Pendaftaran berhasil! Silakan login.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInScreen()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // Tangani kesalahan jika email sudah digunakan
+      if (e.code == 'email-already-in-use') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Email Sudah Terdaftar'),
+              content: Text(
+                  'Email yang Anda masukkan sudah digunakan oleh akun lain.'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Tangani kesalahan lainnya
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(e.message ?? 'Terjadi kesalahan'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +166,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       Text(
                         'Selamat Datang di GASTREIT!',
                         style: GoogleFonts.murecho(
@@ -182,14 +183,71 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           color: Color.fromRGBO(10, 40, 116, 1),
                         ),
                       ),
-                      SizedBox(height: 50),
+                      SizedBox(height: 5),
+                      // Pilihan role menggunakan tombol
+                      Padding(
+  padding: const EdgeInsets.symmetric(vertical: 5.0),
+  child: Center(
+    child: Text(
+      'Pilih Role',
+      style: GoogleFonts.ubuntu(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color.fromRGBO(10, 40, 116, 1),
+      ),
+      textAlign: TextAlign.center,
+    ),
+  ),
+),
+                      SizedBox(height: 0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _role = 'Doctor';
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _role == 'Doctor' ? Colors.blue : Colors.grey, // Background color
+                              foregroundColor: Colors.white, // Text color
+                              minimumSize: Size(120, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text('Dokter'),
+                          ),
+                          SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _role = 'Patient';
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _role == 'Patient' ? Colors.green : Colors.grey, // Background color
+                              foregroundColor: Colors.white, // Text color
+                              minimumSize: Size(120, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text('Pasien'),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              labelText: 'Nama Lengkap',
+                              labelText: _role == 'Doctor'
+                                  ? 'Nama Lengkap (Termasuk Gelar)'
+                                  : 'Nama Lengkap',
                               labelStyle: GoogleFonts.ubuntu(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -459,7 +517,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                   ),
                                 ),
-                          SizedBox(height: 40),
+                          SizedBox(height: 20),
                           Text(
                             'GASTREIT',
                             style: GoogleFonts.ubuntu(
@@ -469,7 +527,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[

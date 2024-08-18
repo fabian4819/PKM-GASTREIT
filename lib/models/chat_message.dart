@@ -5,20 +5,25 @@ class ChatMessage {
   final String senderName;
   final String text;
   final Timestamp timestamp;
+  final String status; // Add this line
 
   ChatMessage({
     required this.senderId,
     required this.senderName,
     required this.text,
     required this.timestamp,
+    this.status = 'sent', // Default to 'sent' if not provided
   });
 
   factory ChatMessage.fromDocument(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?;
+
     return ChatMessage(
-      senderId: doc['senderId'],
-      senderName: doc['senderName'],
-      text: doc['text'],
-      timestamp: doc['timestamp'],
+      senderId: data?['senderId'] ?? '',
+      senderName: data?['senderName'] ?? 'Unknown',
+      text: data?['text'] ?? '',
+      timestamp: data?['timestamp'] ?? Timestamp.now(),
+      status: data?['status'] ?? 'sent', // Default to 'sent' if missing
     );
   }
 
@@ -28,6 +33,7 @@ class ChatMessage {
       'senderName': senderName,
       'text': text,
       'timestamp': timestamp,
+      'status': status, // Ensure status is included
     };
   }
 }
