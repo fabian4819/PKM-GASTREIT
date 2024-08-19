@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
-import 'package:pkm_gastreit/screen/sign_in_screen.dart';
+import 'package:pkm_gastreit/screen/landing_screen.dart';
 import 'package:pkm_gastreit/providers/collection_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            SignInScreen(), // Navigate back to the sign-in screen
+            LandingScreen(), // Navigate back to the sign-in screen
       ),
       (Route<dynamic> route) => false, // Remove all previous routes
     );

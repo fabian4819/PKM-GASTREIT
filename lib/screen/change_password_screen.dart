@@ -72,6 +72,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Set the back button color to white
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

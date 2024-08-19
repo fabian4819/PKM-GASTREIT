@@ -12,11 +12,9 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  String _selectedAvatarUrl = '';
   bool _isLoading = false;
 
   @override
@@ -41,9 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       _nameController.text =
           data['fullName'] ?? ''; // Fetch fullName from Firestore
-      _emailController.text = user.email ?? '';
       _phoneController.text = data['phoneNumber'] ?? '';
-      _selectedAvatarUrl = user.photoURL ?? '';
     }
 
     setState(() {
@@ -60,11 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final user = _auth.currentUser;
         if (user != null) {
           await user.updateProfile(
-              displayName: _nameController.text, photoURL: _selectedAvatarUrl);
-
-          if (_emailController.text != user.email) {
-            await user.updateEmail(_emailController.text);
-          }
+              displayName: _nameController.text);
 
           // Update phone number and full name in Firestore
           await FirebaseFirestore.instance
@@ -93,35 +85,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _showAvatarSelectionModal() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return GridView.builder(
-          padding: const EdgeInsets.all(10.0),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-          ),
-          itemCount: 2, // Number of avatar images
-          itemBuilder: (context, index) {
-            final avatarAsset = 'images/avatar${index + 1}.png';
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedAvatarUrl = avatarAsset;
-                });
-                Navigator.pop(context);
-              },
-              child: Image.asset(avatarAsset),
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,8 +98,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         backgroundColor: Color.fromRGBO(10, 40, 116, 1),
-        iconTheme:
-            IconThemeData(color: Colors.white), // Set back arrow color to white
+        iconTheme: IconThemeData(color: Colors.white), // Set back arrow color to white
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -147,29 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(
-                      child: GestureDetector(
-                        onTap: _showAvatarSelectionModal,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.blue,
-                          ),
-                          child: _selectedAvatarUrl.isNotEmpty
-                              ? Image.asset(
-                                  _selectedAvatarUrl,
-                                  fit: BoxFit.cover,
-                                )
-                              : Icon(
-                                  Icons.camera_alt,
-                                  size: 50,
-                                  color: Colors.white,
-                                ),
-                        ),
-                      ),
-                    ),
+                    // Removed avatar section
                     SizedBox(height: 20),
                     TextFormField(
                       controller: _nameController,
@@ -177,20 +117,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                            .hasMatch(value)) {
-                          return 'Please enter a valid email address';
                         }
                         return null;
                       },

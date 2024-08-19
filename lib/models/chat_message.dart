@@ -6,6 +6,7 @@ class ChatMessage {
   final String text;
   final Timestamp timestamp;
   final String status; // Add this line
+  final bool isRead; // Add this line
 
   ChatMessage({
     required this.senderId,
@@ -13,6 +14,7 @@ class ChatMessage {
     required this.text,
     required this.timestamp,
     this.status = 'sent', // Default to 'sent' if not provided
+    this.isRead= false, // Default to false if not provided
   });
 
   factory ChatMessage.fromDocument(DocumentSnapshot doc) {
@@ -24,6 +26,7 @@ class ChatMessage {
       text: data?['text'] ?? '',
       timestamp: data?['timestamp'] ?? Timestamp.now(),
       status: data?['status'] ?? 'sent', // Default to 'sent' if missing
+      isRead: data?['isRead'] ?? false, // Default to false if missing
     );
   }
 
@@ -34,6 +37,7 @@ class ChatMessage {
       'text': text,
       'timestamp': timestamp,
       'status': status, // Ensure status is included
+      'isRead': isRead, // Ensure isRead is included
     };
   }
 }

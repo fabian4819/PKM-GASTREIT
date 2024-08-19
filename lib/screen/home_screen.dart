@@ -35,6 +35,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  String? currentUserRole;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -65,6 +66,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserRole();
+  }
+
+  Future<void> _getCurrentUserRole() async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId != null) {
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .get();
+      setState(() {
+        currentUserRole = currentUserDoc.get('role') ?? '';
+      });
+    }
+  }
   
   Future<String> _getUserFullName() async {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -224,6 +243,14 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Color.fromRGBO(10, 40, 116, 1),
           actions: [
             IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                // Trigger a rebuild of the screen
+              });
+            },
+          ),
+            IconButton(
               icon: Icon(Icons.account_circle, color: Colors.white),
               onPressed: () {
                 Navigator.push(
@@ -285,7 +312,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                         Text(
-                          'Pantau Kesehatan Lambungmu',
+                          currentUserRole == 'Doctor'
+                              ? 'Pantau Lambung Pasien'
+                              : 'Pantau Kesehatan Lambungmu',
                           style: GoogleFonts.ubuntu(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -317,7 +346,9 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       icon: Icon(Icons.message_rounded, color: Colors.blue),
       label: Text(
-        'Konsultasi Dokter',
+        currentUserRole == 'Doctor'
+            ? 'Konsultasi Pasien'
+            : 'Konsultasi Dokter',
         style: GoogleFonts.ubuntu(
           fontSize: 18, // Ukuran font
           fontWeight: FontWeight.bold, // Ketebalan font

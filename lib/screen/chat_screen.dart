@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -159,83 +160,78 @@ class _ChatScreenState extends State<ChatScreen> {
   // }
 
   Widget _buildMessageItem(DocumentSnapshot doc) {
-  final chatMessage = ChatMessage.fromDocument(doc);
-  final isMe = chatMessage.senderId == _auth.currentUser?.uid;
+    final chatMessage = ChatMessage.fromDocument(doc);
+    final isMe = chatMessage.senderId == _auth.currentUser?.uid;
+    final isRead = chatMessage.isRead;
 
-  IconData statusIcon;
-  switch (chatMessage.status) {
-    case 'sent':
-      statusIcon = Icons.check;
-      break;
-    case 'delivered':
-      statusIcon = Icons.done_all;
-      break;
-    case 'read':
-      statusIcon = Icons.done_all;
-      break;
-    default:
-      statusIcon = Icons.schedule; // For messages not yet sent or unknown status
+    IconData statusIcon;
+    Color? iconColor;
+
+    if (isRead) {
+      statusIcon = Icons.done_all; // Change to 'read' icon
+      iconColor = Colors.blue;
+    } else {
+      statusIcon = Icons.done_all; // Default to 'sent' icon
+      iconColor = Colors.grey;
+    }
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            decoration: BoxDecoration(
+              color: isMe ? Colors.blue[200] : Colors.grey[300],
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: isMe
+                  ? [
+                BoxShadow(
+                    color: Colors.blue.withOpacity(0.2),
+                    blurRadius: 5,
+                    spreadRadius: 2)
+              ]
+                  : [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 5,
+                    spreadRadius: 2)
+              ],
+            ),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit the width of the message
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  chatMessage.senderName,
+                  style: GoogleFonts.ubuntu(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  chatMessage.text,
+                  style: GoogleFonts.ubuntu(
+                    color: Colors.black54,
+                  ),
+                  softWrap: true, // Allow text to wrap
+                  overflow: TextOverflow.clip, // Clip the text if it overflows
+                ),
+              ],
+            ),
+          ),
+          if (isMe)
+            Icon(statusIcon, color: iconColor), // Display status icon for sent messages
+        ],
+      ),
+    );
   }
-
-  return Align(
-    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          decoration: BoxDecoration(
-            color: isMe ? Colors.blue[200] : Colors.grey[300],
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: isMe
-                ? [
-                    BoxShadow(
-                        color: Colors.blue.withOpacity(0.2),
-                        blurRadius: 5,
-                        spreadRadius: 2)
-                  ]
-                : [
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 5,
-                        spreadRadius: 2)
-                  ],
-          ),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit the width of the message
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                chatMessage.senderName,
-                style: GoogleFonts.ubuntu(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                chatMessage.text,
-                style: GoogleFonts.ubuntu(
-                  color: Colors.black54,
-                ),
-                softWrap: true, // Allow text to wrap
-                overflow: TextOverflow.clip, // Clip the text if it overflows
-              ),
-            ],
-          ),
-        ),
-        if (isMe)
-          Icon(statusIcon,
-              color:
-                  Colors.blueAccent), // Display status icon for sent messages
-      ],
-    ),
-  );
-}
 
 
   @override
@@ -264,18 +260,18 @@ class _ChatScreenState extends State<ChatScreen> {
                     }
                     return isTyping
                         ? Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                '${widget.recipientName} is typing...',
-                                style: GoogleFonts.ubuntu(
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          )
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          '${widget.recipientName} is typing...',
+                          style: GoogleFonts.ubuntu(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    )
                         : SizedBox.shrink();
                   },
                 ),
@@ -301,7 +297,22 @@ class _ChatScreenState extends State<ChatScreen> {
                         reverse: true,
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
-                          return _buildMessageItem(messages[index]);
+                          final messageDoc = messages[index];
+                          final chatMessage = ChatMessage.fromDocument(messageDoc);
+
+                          final isMe = chatMessage.senderId == _auth.currentUser?.uid;
+
+                          // Mark the message as read if it's not sent by the current user and it's not read yet
+                          if (!isMe && !chatMessage.isRead) {
+                            _firestore
+                                .collection('chats')
+                                .doc(_generateChatId())
+                                .collection('messages')
+                                .doc(messageDoc.id)
+                                .update({'isRead': true});
+                          }
+
+                          return _buildMessageItem(messageDoc);
                         },
                       );
                     },
@@ -311,40 +322,39 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Padding(
-  padding: EdgeInsets.all(8.0),
-  child: Row(
-    children: [
-      Flexible(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Color.fromRGBO(10, 40, 116, 1), // Border color
-              width: 2, // Border width
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Color.fromRGBO(10, 40, 116, 1), // Border color
+                        width: 2, // Border width
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _messageController,
+                      maxLines: null, // Allow the TextField to expand vertically
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        border: InputBorder.none, // Remove default border
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  color: Color.fromRGBO(10, 40, 116, 1), // Icon color
+                  onPressed: _sendMessage,
+                ),
+              ],
             ),
           ),
-          child: TextField(
-            controller: _messageController,
-            maxLines: null, // Allow the TextField to expand vertically
-            decoration: InputDecoration(
-              hintText: 'Type a message...',
-              border: InputBorder.none, // Remove default border
-            ),
-          ),
-        ),
-      ),
-      SizedBox(width: 10),
-      IconButton(
-        icon: Icon(Icons.send),
-        color: Color.fromRGBO(10, 40, 116, 1), // Icon color
-        onPressed: _sendMessage,
-      ),
-    ],
-  ),
-),
-
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
