@@ -85,22 +85,41 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-  void _deleteCollection(String collectionName) {
-    final collectionProvider =
-        Provider.of<CollectionProvider>(context, listen: false);
-    collectionProvider.removeCollection(collectionName);
-
-    setState(() {
-      int index = documentIds.indexOf(collectionName);
-      if (index != -1) {
-        reportDataList.removeAt(index);
-        documentIds.removeAt(index);
-      }
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Collection removed from the list')));
+  void _deleteCollection(String collectionName) async {
+  final collectionProvider =
+      Provider.of<CollectionProvider>(context, listen: false);
+  
+  // Hapus koleksi dari Firestore
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  if (userId != null) {
+    try {
+      DocumentReference userDoc = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId);
+      
+      await userDoc.update({
+        'selectedCollections': FieldValue.arrayRemove([collectionName]),
+      });
+    } catch (e) {
+      print('Error removing collection from Firestore: $e');
+    }
   }
+  
+  // Hapus koleksi dari CollectionProvider
+  collectionProvider.removeCollection(collectionName);
+
+  setState(() {
+    int index = documentIds.indexOf(collectionName);
+    if (index != -1) {
+      reportDataList.removeAt(index);
+      documentIds.removeAt(index);
+    }
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Collection removed from the list')));
+}
+
 
   Future<void> _showDeleteConfirmationDialog(String collectionName) async {
     showDialog(
