@@ -40,7 +40,7 @@ class _UserListScreenState extends State<UserListScreen> {
     setState(() {
       _selectedIndex = index;
     });
-
+    //Dan Seterusnya
     switch (index) {
       case 0:
         Navigator.pushReplacement(
@@ -96,11 +96,12 @@ class _UserListScreenState extends State<UserListScreen> {
         title: Text(
           'Chat',
           style: GoogleFonts.ubuntu(
-              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Color(0xFF6F4107)),
         ),
-        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        backgroundColor: Color(0xFFED890B),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body:
+      StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .where(FieldPath.documentId, isNotEqualTo: currentUserId)

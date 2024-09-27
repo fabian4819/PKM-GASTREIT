@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, use_build_context_synchronously, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,6 +42,7 @@ class _InputScreenState extends State<InputScreen> {
     print('Loaded collections: ${_allCollections.length}');
     _loadSelectedCollections(); // Load selected collections
   }
+  //Dan Seterusnya
 
   Future<List<Map<String, dynamic>>> _fetchCollectionDetails() async {
     Stopwatch stopwatch = Stopwatch()..start(); // Mulai stopwatch
@@ -227,10 +226,10 @@ class _InputScreenState extends State<InputScreen> {
         title: Text(
           'Input',
           style: GoogleFonts.ubuntu(
-              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Color(0xFF6F4107)),
         ),
         leadingWidth: 100,
-        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        backgroundColor: Color(0xFFED890B),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh, color: Colors.white),
@@ -246,7 +245,9 @@ class _InputScreenState extends State<InputScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-      body: Column(
+      body: Container(
+          color: Color(0xFFFFEEDC),
+          child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -317,6 +318,7 @@ class _InputScreenState extends State<InputScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

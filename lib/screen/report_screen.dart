@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,6 +36,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
     List<Map<String, dynamic>> tempDataList = [];
     List<String> tempDocumentIds = [];
+
+    //Dan Seterusnya
 
     for (String collectionName in selectedCollections) {
       try {
@@ -192,9 +192,9 @@ class _ReportScreenState extends State<ReportScreen> {
         title: Text(
           'Report',
           style: GoogleFonts.ubuntu(
-              fontSize: 25, fontWeight: FontWeight.w600, color: Colors.white),
+              fontSize: 25, fontWeight: FontWeight.w600, color: Color(0xFF6F4107)),
         ),
-        backgroundColor: Color.fromRGBO(10, 40, 116, 1),
+        backgroundColor: Color(0xFFED890B),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh, color: Colors.white),
@@ -202,7 +202,9 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Container(
+          color: Color(0xFFFFEEDC),
+          child: Column(
         children: [
           if (computationTime.isNotEmpty)
             Padding(
@@ -265,6 +267,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       ),
           ),
         ],
+      ),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
