@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     }
   }
-
+  //Dan Seterusnya
   Future<String> _getVersion() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
@@ -54,6 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
       return 'Unknown';
     }
   }
+  
+  
 
   @override
   Widget build(BuildContext context) {

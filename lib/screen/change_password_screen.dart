@@ -1,7 +1,3 @@
-// lib/screen/change_password_screen.dart
-
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,7 +37,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           _currentPasswordController.clear();
           _newPasswordController.clear();
           _confirmPasswordController.clear();
-
+          //Dan Seterusnya
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Password changed successfully')),

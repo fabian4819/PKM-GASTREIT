@@ -1,7 +1,5 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print
-
 import 'package:flutter/material.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
+// import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -41,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialPageRoute(builder: (context) => HomeScreen()),
         );
         break;
+        //Dan Seterusnya
       case 1:
         Navigator.pushReplacement(
           context,

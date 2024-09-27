@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -44,10 +42,11 @@ class InformationScreen extends StatelessWidget {
                         imageUrl,
                         fit: BoxFit.cover,
                         height: 150, // Adjust the height as needed
-                        
+                        //Dan Seterusnya
                       ),
               ),
             ),
+            
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
